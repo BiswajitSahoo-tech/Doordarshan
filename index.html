@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>P2P Video Chat</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <!-- <link rel="stylesheet" href="style.css" /> -->
+    <style>
+        #live {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        display: none;
+    }
+    #local-video {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 250px;
+        -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+        margin: 16px;
+        border: 2px solid #fff;
+    }
+    #remote-video {
+        position: absolute;
+        max-width: 100%;
+        height: 100%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    #end-call {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: 8px;
+        background-color: red;
+        color: white;
+        border: none;
+        margin: 16px;
+    }
+    #chat{
+        background-color: rgb(210, 210, 210);
+        margin-top: 20px;
+        margin-left: 20px;
+        margin-left: 20px;
+        margin-bottom: 20px;
+        display: none;
+        border-radius: 10px;
+        height: fit-content;
+        width: 50%;
+        align-self: center;
+
+    }
+    #msg{
+        background-color: #fff;
+        border-radius: 10px;
+        width: fit-content;
+        height: fit-content;
+    }
+    #typingBox {
+        display: none;
+        margin-top: 20px;
+        margin-left: 20px;
+        margin-left: 20px;
+        margin-bottom: 20px;
+        align-self: center;
+
+    }
+    #stream_parent {
+        display: none;
+        margin-top: 20px;
+        margin-left: 20px;
+        margin-left: 20px;
+        margin-bottom: 20px;
+        align-self: center;
+    }
+    #share_parent {
+        display: none;
+        margin-top: 20px;
+        margin-left: 20px;
+        margin-left: 20px;
+        margin-bottom: 20px;
+        align-self: center;
+    }
+    #audio_parent {
+        display: none;
+        margin-top: 20px;
+        margin-left: 20px;
+        margin-left: 20px;
+        margin-bottom: 20px;
+        align-self: center;
+    }
+    #game_board {
+        border: solid;
+        width: fit-content;
+        height: fit-content;
+
+    }
+    #row {
+        
+        width: fit-content;
+        height: fit-content;
+        display: flex;
+        align-content: stretch;
+    }
+    .square {
+        border: solid;
+        width: 100px;
+        height: 100px;
+        margin: 0px 0px 0px 0px;
+    }
+    #squareContent {
+        width: 100px;
+        height: 100px;
+        font-size: 100px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        
+    }
+    #gameConsole {
+        display: none;
+        align-content: stretch;
+        margin-top: 20px;
+        margin-left: 20px;
+        margin-left: 20px;
+        margin-bottom: 20px;
+    }
+    #scoreBoard {
+        width: 300px;
+        height: 300px;
+        margin-left: 20px;
+        
+    }
+    
+    </style>
+  </head>
+    <body>
+        <div id="menu" style="align-self: center;">
+            <p>Your ID:</p>
+            <p id="uuid"></p>
+            <input type="text" placeholder="Peer id" /><br>
+            <button onclick="callUser()">🎥Video-call</button>
+            <button onclick="chat()">💬Chat</button>
+            <button onclick="audioCall()">📞Call</button>
+            <button onclick="stream()">📡Stream</button>
+            <button onclick="share()">📁Share</button>
+            <button onclick="tictactoe()">🎮Tic Tac Toe</button>
+        </div>
+        
+        <!-- CHAT BLOCK -->
+        <div id="typingBox">
+            <input type="text" id="typing" placeholder="Enter your msg">
+            <button id = "sendBtn" onclick="send()" style="margin-left: 5px;">Send</button>
+        </div>
+
+        <div id="chat">
+            
+        </div>
+        <!-- CHAT BLOCK END-->
+
+        <!-- STREAM BLOCK -->
+        <div id="stream_parent">
+            <div style="margin-top: 5px; margin-left: 5px;">
+                <video id="player" style="width: 700px; height:500px; border: solid; border-radius: 10px;"></video>
+            </div>
+            <div style="margin-top: 5px; margin-left: 5px; margin-bottom: 5-x;">
+                <!-- <input type="file" id="file" type=".mp4, .mkv" onchange="chooseFile(this)"> -->
+                 <button id="chooseBtn" onclick="endCall()">Stop</button> 
+                <!-- <button id="streamBtn" onclick="streamVideo()">Stream</button> -->
+            </div>
+        </div>
+        <!-- STREAM BLOCK END-->
+
+        <!-- SHARE BLOCK-->
+        <div id="share_parent">
+            <label for="fileI">Choose a file to share:</label>
+            <input type="file" id="fileI" name="fileI" onchange="sendFile()">
+        </div>
+        <!-- SHARE BLOCK END -->
+
+        <!-- VIDEO CALL BLOCK -->
+        <div id="live">
+            <video id="remote-video" ></video>
+            <video id="local-video" muted="true"></video>
+            <button id="end-call" onclick="endCall()">End Call</button>
+        </div>
+        <!-- VIDEO CALL BLOCK END-->
+
+        <!-- AUDIO CALL BLOCK -->
+        <div id="audio_parent">
+            <audio controls id="audioPlayer"></audio>
+            <button id="hangup" onclick="endAudioCall()">Hang Up</button>
+        </div>
+        <!-- AUDIO CALL BLOCK END -->
+
+        <!-- GAME DIV  -->
+        <div id="gameConsole">
+            <div id="game_board">
+                <div id="row">
+                    <div class="square"><p id="squareContent"></p></div>
+                    <div class="square"><p id="squareContent"></p></div>
+                    <div class="square"><p id="squareContent"></p></div>
+                </div>
+                <div id="row">
+                    <div class="square"><p id="squareContent"></p></div>
+                    <div class="square"><p id="squareContent"></p></div>
+                    <div class="square"><p id="squareContent"></p></div>
+                </div>
+                <div id="row">
+                    <div class="square"><p id="squareContent"></p></div>
+                    <div class="square"><p id="squareContent"></p></div>
+                    <div class="square"><p id="squareContent"></p></div>
+                </div>      
+            </div>
+            <div id="scoreBoard">
+                <button id="resetBtn" onclick="reset('btn')">Reset</button>
+                <p id="turn"></p>
+                <p id="winner"></p>
+            </div>
+        </div>
+        
+        <!-- GAME DIV END -->
+
+        <!-- <script src="main.js"></script> -->
+        <script>
+
+            //DOM
+            const parent = document.getElementById('chat')
+            function appendmsg(data, sender){
+                const msgLabel = document.createElement('label')
+                const labelText = document.createTextNode(sender)
+                msgLabel.appendChild(labelText)
+                msgLabel.style.color = 'Orange'
+                const msgDiv = document.createElement('div')
+                msgDiv.setAttribute('id', 'msg')
+                msgDiv.style.backgroundColor= '#fff'
+                msgDiv.style.borderRadius= '10px'
+                msgDiv.style.width = 'fit-content'
+                msgDiv.style.height = 'fit-content'
+                msgDiv.style.marginLeft = '15px'
+                msgDiv.style.marginTop = '5px'
+                msgDiv.style.border= 'solid'
+                msgDiv.style.paddingTop = '10px'
+                msgDiv.style.paddingBottom = '10px'
+                msgDiv.style.paddingRight = '10px'
+                msgDiv.style.paddingLeft = '10px'
+                const msgP = document.createElement('p')
+                msgP.style.color = 'black'
+                const textNode = document.createTextNode(data)
+                msgP.appendChild(textNode)
+                msgDiv.appendChild(msgP)
+                parent.appendChild(msgLabel)
+                parent.appendChild(msgDiv)
+
+            }
+            var DataConnection, fileConnection, ticConnection
+            //PEER
+            var currentCall, streamCall, audioCall
+            const peer = new Peer();
+
+            peer.on("open", function (id) {
+                document.getElementById("uuid").textContent = id;
+            });
+
+            peer.on('connection', (dataCon)=> {
+                // DataConnection = dataCon
+                console.log(dataCon)
+                if(dataCon.metadata && dataCon.metadata.isFile){
+                    // if( confirm('HE/SHE want to send a file?')){
+                        
+                        dataCon.on("data", data => {
+                            console.log( data)
+                            if(data == 'purpose'){
+                                if(confirm('HE/SHE want to send a file?')){
+                                    dataCon.send('yes')
+                                    fileConnection = dataCon
+
+                                }
+                                else{
+                                    fileConnection = undefined
+                                    dataCon.send('no')
+                                    dataCon.close()
+                                    return
+                                }
+                            }
+                            if(fileConnection){
+                                var fileChunks = [];
+                                if (data.toString() === "EOF") {
+                                    // Once, all the chunks are received, combine them to form a Blob
+                                    const file = new Blob(fileChunks);
+                                    const fileSrc = URL.createObjectURL(file)
+                                    const fileName = 'DoorDarshan/'+Date.now();
+                                    const a = document.createElement('a')
+                                    a.setAttribute('download', fileName)
+                                    a.setAttribute('href', fileSrc)
+                                    document.body.appendChild(a)
+                                    a.click()
+                                    document.body.removeChild(a)
+                                    URL.revokeObjectURL(fileSrc);
+                                    fileChunks = []
+                                    
+                                } else {
+                                    // Keep appending various file chunks
+                                    fileChunks.push(data);
+                                }
+                            }
+                            else{
+                                alert('Permission rejected')
+                            }
+                        })
+                    // }else{
+                    //     console.log('file rejected')
+                    //     dataCon.send('rejected')
+                    //     // dataCon.close()
+                    // }
+                }
+                else if(dataCon.metadata && dataCon.metadata.isTic){
+                    if(confirm('HE/SHE wants to play TIC-TAC-TOE')){
+                        ticConnection = dataCon
+                        const gameConsole = document.getElementById('gameConsole')
+                        const turn = document.getElementById('turn')
+                        const winner = document.getElementById('winner')
+
+                        var _turn = 1;
+                        turn.innerHTML = 'NOW TURN IS HE/SHE'
+
+                        gameConsole.style.display = 'flex'
+                        GAME_OVER = false
+
+                        const sqrs = document.getElementsByClassName('square')
+                        // console.log( sqrs)
+                        for(var i = 0 ; i < sqrs.length ; i++){
+                            sqrs[i].setAttribute('id', i)
+                            const id = sqrs[i].id
+                            sqrs[i].addEventListener('click', (e)=>{
+                                if(GAME_OVER){
+                                    alert('GAME OVER!!')
+                                    return
+                                }
+                                if(_turn !== 0){
+                                    alert('ITS NOT YOUR TURN MAN!! PLEASE WAIT')
+                                    return
+                                }
+                                if( !mark(id,'O') ){
+                                    alert('PLEASE MARK A UNMARKED SQUARE.')
+                                    return
+                                }
+                                
+                                if( isWinner('O') === 'O'){
+                                    dataCon.send( id)
+                                    GAME_OVER = true
+                                    winner.innerHTML = "YOU WIN 🎊🎉🎊"
+                                    setTimeout(()=>{
+                                        dataCon.send('GO')
+                                    },1000)
+                                    
+                                    return
+                                }  
+                                _turn = 1
+                                e.preventDefault()
+                                turn.innerHTML = "NOW TURN IS HE/SHE"
+                                // mark(id,'O')
+                                dataCon.send( id)
+                            })
+                            // console.log(sqrs[i])
+
+                        }
+                        dataCon.on('data', data=>{
+                            if( data == 'reset'){
+                                reset('notbtn')
+                                return;
+                            }
+                            if(data === 'GO'){
+                                winner.innerHTML="YOU LOOSE ❤️"
+                                GAME_OVER = true
+                                return
+                            }
+                            mark(data,'X')
+                            _turn = 0
+                            turn.innerHTML = "NOW TURN IS YOUR"
+                            
+                        })
+                        
+                    }else{
+                        console.log('game rejected')
+                        setTimeout(() => {
+                            dataCon.send('rejected')
+                        }, 1000);
+                        
+                        // dataCon.close()
+                    }
+                }
+                else{
+                    DataConnection = dataCon
+                    dataCon.on('data',(data)=>{
+                        //..child append
+                        console.log(data)
+                        document.getElementById('typingBox').style.display = 'block'
+                        document.getElementById('chat').style.display = 'block'
+                        appendmsg(data,'HE/SHE:')
+                    })
+                }
+                
+            })
+
+            peer.on("call", (call) => {
+                console.log(call)
+                
+                if( call.metadata && call.metadata.isStreaming){
+                    if( confirm('HE/SHE want to stream something special?')){
+                        streamCall = call
+                        const parent = document.getElementById('stream_parent')
+                        parent.style.display = 'block'
+                        const player = document.getElementById('player')
+                        console.log(call)
+                        currentCall = call
+                        call.answer()
+                        call.on('stream' , (screenStream)=>{
+                            console.log(screenStream)
+                            player.srcObject = screenStream
+                            player.play()
+                        })
+                    }else{
+                        call.close()
+                    }
+                }
+                else if(call.metadata && call.metadata.isAudio){
+                    if(confirm('Accept call from ${call.peer}?')){
+                        
+                        navigator.mediaDevices.getUserMedia({video:false, audio:true})
+                                 .then( stream=>{
+                                    const parent = document.getElementById('audio_parent')
+                                    const player = document.getElementById('audioPlayer')
+                                    parent.style.display = 'block'
+                                    console.log(call)
+                                    audioCall = call
+                                    call.answer(stream)
+                                    call.on('stream', ( audioStream)=> {
+                                        player.srcObject = audioStream
+                                        player.play()
+                                    })
+                                    call.on('close', ()=>{
+                                        console.log('receiver closed called')
+
+                                        endAudioCall()
+                                    })
+                                 }).catch( err=>{
+                                    console.log( 'Error in getting user media stream')
+                                 })
+                    }else{
+                        call.close()
+                    }
+                }
+                else{
+                    if (confirm(`Accept call from ${call.peer}?`)) {
+                        // grab the camera and mic
+                        navigator.mediaDevices
+                                    .getUserMedia({ video: true, audio: true })
+                                    .then((stream) => {
+                                        // change to the video view
+                                        document.querySelector("#menu").style.display = "none";
+                                        document.querySelector("#live").style.display = "block";
+
+                                        // play the local preview
+                                        document.querySelector("#local-video").srcObject = stream;
+                                        document.querySelector("#local-video").play();
+
+                                        // answer the call
+                                        call.answer(stream);
+
+                                        // save the close function
+                                        currentCall = call;
+                                        
+                                        call.on("stream", (remoteStream) => {
+                                            // when we receive the remote stream, play it
+                                            document.getElementById("remote-video").srcObject = remoteStream;
+                                            document.getElementById("remote-video").play();
+                                        });
+                                        call.on('close', ()=>{
+                                            endCall()
+                                        })
+                                    })
+                                    .catch((err) => {
+                                        console.log("Failed to get local stream:", err);
+                                    });
+                    } 
+                    else{
+                        // user rejected the call, close it
+                        call.close();
+                    }
+                }
+                
+            });
+            
+            //CHAT
+            function chat(){
+                                
+                const peerId = document.querySelector("input").value;
+                const dataCon = peer.connect(peerId)
+                DataConnection = dataCon
+                document.getElementById('typingBox').style.display = 'block'
+                
+
+                
+                dataCon.on('data', (data)=>{
+                    //..child append
+                    document.getElementById('chat').style.display = 'block'
+                    appendmsg(data,'HE/SHE:')
+                })
+                
+            }
+            function sendMsg(con){
+                document.getElementById('chat').style.display = 'block'
+                const msg = document.getElementById('typing').value
+                appendmsg(msg,'YOU:')
+                con.send(msg)
+            }
+            function send(){
+                sendMsg(DataConnection)
+            }
+            
+            //VIDEO CALL
+            async function callUser() {
+                // get the id entered by the user
+                const peerId = document.querySelector("input").value;
+            // grab the camera and mic
+                try{
+                    var stream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: true,
+                    });
+                }catch( err){
+                    alert('cannot get local stream')
+                    console.log( err)
+                    return
+                }
+                
+            // switch to the video call and play the camera preview
+                document.getElementById("menu").style.display = "none";
+                document.getElementById("live").style.display = "block";
+                document.getElementById("local-video").srcObject = stream;
+                document.getElementById("local-video").play();
+            // make the call
+                const call = peer.call(peerId, stream);
+
+                call.on("stream", (stream) => {
+                    document.getElementById("remote-video").srcObject = stream;
+                    document.getElementById("remote-video").play();
+                });
+
+                call.on("data", (stream) => {
+                    document.querySelector("#remote-video").srcObject = stream;
+                });
+
+                call.on("error", (err) => {
+                    console.log(err);
+                });
+
+                call.on('close', () => {
+                    endCall()
+                })
+
+            // save the close function
+                currentCall = call;
+            }
+
+            function endCall() {
+                // Go back to the menu
+                document.querySelector("#menu").style.display = "block";
+                document.querySelector("#live").style.display = "none";
+            // If there is no current call, return
+                if (!currentCall) return;
+            // Close the call, and reset the function
+                try {
+                    currentCall.close();
+                } catch {}
+                currentCall = undefined;
+            }
+
+
+            //STREAM
+            async function startCapture(displayMediaOptions) {
+                var captureScreen = undefined
+                try{
+                    captureScreen = await navigator
+                                        .mediaDevices
+                                        .getDisplayMedia(displayMediaOptions)
+                }catch( err){
+                    console.log( err)
+                    return
+                }
+                return captureScreen
+            }
+            async function stream(){
+                const peerId = document.querySelector("input").value;
+                startCapture({displaySurface:['application' , 'browser', 'monitor', 'window']})
+                            .then((screenStream)=> {
+                                screenStream.isStreaming = true
+                                console.log( screenStream)
+                                const mediaCon = peer.call(peerId, screenStream ,{metadata: {isStreaming : true}})
+                                
+                            })
+                
+            }
+
+            //SHARE
+            function share(){
+                const parent = document.getElementById('share_parent')
+
+                const peerId = document.querySelector("input").value;
+                const con = peer.connect(peerId, {metadata:{isFile: true}})
+
+                // fileConnection = undefined
+
+                setTimeout(()=>{
+                    con.send('purpose')
+                },1000)
+                
+                con.on('data',data=>{
+                    console.log(data)
+                    if(data === 'no'){
+                        fileConnection = undefined
+                        alert('HE/SHE denied. Please donot send any file. Or request once more')
+                        parent.style.display = 'none'
+                    }
+                    else if(data === 'yes'){
+                        fileConnection = con
+                        alert('you are already to share a file')
+                        parent.style.display = 'block'
+                    }
+                })
+                con.on('close', ()=>{
+                    alert('file:/// HE/SHE denied.')
+                    fileConnection = undefined
+                })
+
+                setTimeout(()=>{},1000)
+                
+            }
+            async function sendFile(){
+                if( fileConnection === undefined){
+                    alert('You are not yet ready to send file.')
+                    return
+                }
+                const fileI = document.getElementById('fileI')
+                const n = fileI.files.length
+                console.log( fileI.files)
+                const file = fileI.files[0]
+                console.log(file)
+                let buffer = await file.arrayBuffer();
+                console.log(buffer)
+                const chunkSize = 1024 * 1024;
+                var flag = true
+                while (buffer.byteLength ) {
+                    const chunk = buffer.slice(0, chunkSize);
+                    console.log(chunk)
+                    buffer = buffer.slice(chunkSize, buffer.byteLength);
+
+                    // Off goes the chunk!
+                    // setTimeout(()=>{
+                    //     fileConnection.send(chunk);
+                    // },1000)
+                    fileConnection.send(chunk);
+                    
+                    console.log( 'sent')
+                    flag = false
+                }
+                setTimeout(()=>{
+                    fileConnection.send("EOF");
+                    console.log( 'EOF sent')
+                },10000)
+                
+                
+
+            }
+            
+            //AUDIO CALL
+            async function audioCall(){
+                const peerId = document.querySelector("input").value
+                const parent = document.getElementById('audio_parent')
+                const player = document.getElementById('audioPlayer')
+                parent.style.display = 'block'
+                try{
+                    var stream = await navigator.mediaDevices.getUserMedia({video:false, audio:true})
+                }catch( err){
+                    console.log( 'cannot get the user media stream')
+                    return
+                }
+                const mediaCon = peer.call( peerId, stream ,  {metadata:{isAudio:true}})
+                mediaCon.on( 'stream' , (stream)=>{
+                    player.srcObject = stream
+                    player.play()
+                })
+
+                mediaCon.on('close', () => {
+                    alert('HE/SHE cut the call')
+                    console.log('caller closed called')
+                    endAudioCall()
+                })
+                
+                audioCall = mediaCon
+            }
+            function endAudioCall(){
+                const parent = document.getElementById('audio_parent')
+                parent.style.display = 'none'
+                if(!audioCall)
+                    return
+                console.log('audio-call',audioCall)
+                audioCall.close()
+                audioCall = undefined
+
+            }
+
+            //TIC-TAC-TOE
+            let GAME_OVER
+            function reset(mode) {
+                const sqrs = document.getElementsByClassName('square')
+                for(let i=0;i<9;i++){
+                    sqrs[i].firstChild.innerHTML = ""
+                }
+                GAME_OVER = false
+                const winner = document.getElementById('winner')
+                winner.innerHTML = ""
+                const turn = document.getElementById('turn')
+                turn.innerHTML= mode === "btn"? "NOW TURN IS YOURS" : "NOW TURN IS HE/SHE"
+                if(ticConnection !== undefined && mode === 'btn'){
+                    ticConnection.send('reset')
+                }
+
+            }
+            function mark( id, sign){
+                console.log('mark', id)
+                const e=document.getElementById(id)
+                if(e.firstChild.innerHTML === "")
+                    e.firstChild.innerHTML = sign
+                else
+                    return false
+                return true
+            }
+            function tictactoe(){
+                const peerId = document.querySelector("input").value
+                let dataConn = peer.connect(peerId , {metadata:{isTic:true}})
+                ticConnection = dataConn
+                const gameConsole = document.getElementById('gameConsole')
+                const turn = document.getElementById('turn')
+                const winner = document.getElementById('winner')
+                var _turn =0
+                turn.innerHTML= "NOW TURN IS YOURS"
+                gameConsole.style.display = 'flex'
+                const sqrs = document.getElementsByClassName('square')
+                // console.log( sqrs)
+                GAME_OVER = false
+                for(var i = 0 ; i < sqrs.length ; i++){
+                    sqrs[i].setAttribute('id', i)
+                    const id = sqrs[i].id
+                    sqrs[i].addEventListener('click', (e)=>{
+                        e.preventDefault()
+                        if(dataConn === undefined){
+                            alert( 'HE/SHE refused, you cannot play.')
+                            return
+                        }
+                        if(GAME_OVER){
+                            alert('GAME OVER!!')
+                            return
+                        }
+                        if(_turn !== 0){
+                            alert('IT IS NOT YOUR TURN MAN!! PLEASE WAIT.')
+                            return
+                        }
+                        if( !mark(id,'X') ){
+                            alert('PLEASE MARK A UNMARKED SQUARE.')
+                            return
+                        }
+                        
+                        if( isWinner('X') === 'X'){
+                            dataConn.send(id)
+                            GAME_OVER = true
+                            winner.innerHTML = "YOU WIN 🎊🎉🎊"
+                            setTimeout(() => {
+                                dataConn.send('GO')
+                            }, 1000);
+                            return;
+                        }
+                        _turn = 1
+                        turn.innerHTML= "NOW TURN IS HE/SHE"
+                        // mark(id,'X')
+                        dataConn.send( id)
+                    })
+                    // console.log(sqrs[i])
+
+                }
+                dataConn.on('data', data=>{
+                    console.log(data)
+                    if(data === 'reset'){
+                        reset('notbtn')
+                        return;
+                    }
+                    if(data === 'rejected'){
+                        alert('HE/SHE refused to play.')
+                        dataConn = undefined
+                        return;
+                    }
+                    if(data === 'GO'){
+                        winner.innerHTML="YOU LOOSE ❤️"
+                        GAME_OVER = true
+                        return
+                    }
+                    mark(data,'O')
+                    turn.innerHTML= "NOW TURN IS YOURS"
+                    _turn = 0
+                })
+                dataConn.on('close', ()=>{
+                    alert('HE/SHE denied.')
+                })
+                
+            }
+
+            function isWinner(sign){
+                // const sqrs = document.getElementsByClassName('squares')
+                const squares = Array(9).fill(null)
+                for(var i=0;i<9;i++){
+                    squares[i] = document.getElementById(i.toString()).firstChild.innerHTML
+                }
+                console.log( squares)
+                const lines = [
+                    [0, 1, 2],
+                    [3, 4, 5],
+                    [6, 7, 8],
+                    [0, 3, 6],
+                    [1, 4, 7],
+                    [2, 5, 8],
+                    [0, 4, 8],
+                    [2, 4, 6],
+                ];
+                for (let i = 0; i < lines.length; i++) {
+                    const [a, b, c] = lines[i];
+                    if (squares[a]===sign && squares[a] === squares[b] && squares[a] === squares[c]) {
+                        return sign;
+                    }
+                }
+                return null;
+            }
+        </script>
+    </body>
+</html>
