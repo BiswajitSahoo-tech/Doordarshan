@@ -139,20 +139,29 @@
         margin-left: 20px;
         
     }
-    
+    #options {
+        display: none;
+    }
+
     </style>
   </head>
     <body>
         <div id="menu" style="align-self: center;">
-            <p>Your ID:</p>
+            <p id="conLabel">Your ID:</p>
             <p id="uuid"></p>
-            <input type="text" placeholder="Peer id" /><br>
-            <button onclick="callUser()">🎥Video-call</button>
-            <button onclick="chat()">💬Chat</button>
-            <button onclick="audioCall()">📞Call</button>
-            <button onclick="stream()">📡Stream</button>
-            <button onclick="share()">📁Share</button>
-            <button onclick="tictactoe()">🎮Tic Tac Toe</button>
+            <div id="input">
+                <input type="text" placeholder="Peer id" />
+                <button id="connect" onclick="connect()">Connect</button>
+            </div>
+            <div id="options">
+                
+                <button onclick="callUser()">🎥Video-call</button>
+                <button onclick="chat()">💬Chat</button>
+                <button onclick="audioCall()">📞Call</button>
+                <button onclick="stream()">📡Stream</button>
+                <button onclick="share()">📁Share</button>
+                <button onclick="tictactoe()">🎮Tic Tac Toe</button>
+            </div>
         </div>
         
         <!-- CHAT BLOCK -->
@@ -231,39 +240,13 @@
 
         <!-- <script src="main.js"></script> -->
         <script>
-
-            //DOM
-            const parent = document.getElementById('chat')
-            function appendmsg(data, sender){
-                const msgLabel = document.createElement('label')
-                const labelText = document.createTextNode(sender)
-                msgLabel.appendChild(labelText)
-                msgLabel.style.color = 'Orange'
-                const msgDiv = document.createElement('div')
-                msgDiv.setAttribute('id', 'msg')
-                msgDiv.style.backgroundColor= '#fff'
-                msgDiv.style.borderRadius= '10px'
-                msgDiv.style.width = 'fit-content'
-                msgDiv.style.height = 'fit-content'
-                msgDiv.style.marginLeft = '15px'
-                msgDiv.style.marginTop = '5px'
-                msgDiv.style.border= 'solid'
-                msgDiv.style.paddingTop = '10px'
-                msgDiv.style.paddingBottom = '10px'
-                msgDiv.style.paddingRight = '10px'
-                msgDiv.style.paddingLeft = '10px'
-                const msgP = document.createElement('p')
-                msgP.style.color = 'black'
-                const textNode = document.createTextNode(data)
-                msgP.appendChild(textNode)
-                msgDiv.appendChild(msgP)
-                parent.appendChild(msgLabel)
-                parent.appendChild(msgDiv)
-
-            }
-            var DataConnection, fileConnection, ticConnection
-            //PEER
+            //GLOBAL VARIABLE
+            var fixedFileChannel= undefined, fixedTicChannel= undefined
+            var DataConnection = undefined, fileConnection, ticConnection = undefined
             var currentCall, streamCall, audioCall
+            var charcter = undefined
+
+            //PEER
             const peer = new Peer();
 
             peer.on("open", function (id) {
@@ -274,24 +257,46 @@
                 // DataConnection = dataCon
                 console.log(dataCon)
                 if(dataCon.metadata && dataCon.metadata.isFile){
-                    // if( confirm('HE/SHE want to send a file?')){
+                        if(charcter === 'sender'){
+                            console.log('you are sender and you shouldnt be here')
+                            return
+                        }
+                          
+                        const parent = document.getElementById('share_parent')
                         
-                        dataCon.on("data", data => {
+                        fixedFileChannel = dataCon
+                        fixedFileChannel.on("data", data => {
+                            
                             console.log( data)
-                            if(data == 'purpose'){
+                            if(data === 'purpose'){
                                 if(confirm('HE/SHE want to send a file?')){
                                     dataCon.send('yes')
-                                    fileConnection = dataCon
-
-                                }
-                                else{
-                                    fileConnection = undefined
-                                    dataCon.send('no')
-                                    dataCon.close()
+                                    // fileConnection = true
                                     return
                                 }
+                                else{
+                                    // fileConnection = false
+                                    dataCon.send('no')
+                                    // dataCon.close()
+                                    return
+                                }
+                                //MIGHT CLOSE dataConn later
                             }
-                            if(fileConnection){
+                            else if(data === 'no'){
+                                fileConnection = false
+                                alert('HE/SHE denied. Please donot send any file. Or request once more')
+                                parent.style.display = 'none'
+                                return
+                            }
+                            else if(data === 'yes'){
+                                fileConnection = true
+                                alert('you are all ready to share a file')
+                                parent.style.display = 'block'
+                            
+                                return
+                            }
+                            // if(fileConnection){
+                            else{
                                 var fileChunks = [];
                                 if (data.toString() === "EOF") {
                                     // Once, all the chunks are received, combine them to form a Blob
@@ -306,21 +311,21 @@
                                     document.body.removeChild(a)
                                     URL.revokeObjectURL(fileSrc);
                                     fileChunks = []
+                                    fileConnection = false;
                                     
                                 } else {
                                     // Keep appending various file chunks
                                     fileChunks.push(data);
                                 }
                             }
-                            else{
-                                alert('Permission rejected')
-                            }
+                                
+                            // }
+                            // else{
+                            //     alert('Permission rejected')
+                            // }
                         })
-                    // }else{
-                    //     console.log('file rejected')
-                    //     dataCon.send('rejected')
-                    //     // dataCon.close()
-                    // }
+                    
+                        //MIGHT CLOSE dataConn later
                 }
                 else if(dataCon.metadata && dataCon.metadata.isTic){
                     if(confirm('HE/SHE wants to play TIC-TAC-TOE')){
@@ -337,39 +342,42 @@
 
                         const sqrs = document.getElementsByClassName('square')
                         // console.log( sqrs)
+                        
                         for(var i = 0 ; i < sqrs.length ; i++){
                             sqrs[i].setAttribute('id', i)
                             const id = sqrs[i].id
-                            sqrs[i].addEventListener('click', (e)=>{
-                                if(GAME_OVER){
-                                    alert('GAME OVER!!')
-                                    return
-                                }
-                                if(_turn !== 0){
-                                    alert('ITS NOT YOUR TURN MAN!! PLEASE WAIT')
-                                    return
-                                }
-                                if( !mark(id,'O') ){
-                                    alert('PLEASE MARK A UNMARKED SQUARE.')
-                                    return
-                                }
-                                
-                                if( isWinner('O') === 'O'){
-                                    dataCon.send( id)
-                                    GAME_OVER = true
-                                    winner.innerHTML = "YOU WIN 🎊🎉🎊"
-                                    setTimeout(()=>{
-                                        dataCon.send('GO')
-                                    },1000)
+                            if( sqrs[i].onclick === null){
+                                sqrs[i].onclick = (e)=>{
+                                    if(GAME_OVER){
+                                        alert('GAME OVER!!')
+                                        return
+                                    }
+                                    if(_turn !== 0){
+                                        alert('ITS NOT YOUR TURN MAN!! PLEASE WAIT')
+                                        return
+                                    }
+                                    if( !mark(id,'O') ){
+                                        alert('PLEASE MARK A UNMARKED SQUARE.')
+                                        return
+                                    }
                                     
-                                    return
-                                }  
-                                _turn = 1
-                                e.preventDefault()
-                                turn.innerHTML = "NOW TURN IS HE/SHE"
-                                // mark(id,'O')
-                                dataCon.send( id)
-                            })
+                                    if( isWinner('O') === 'O'){
+                                        dataCon.send( id)
+                                        GAME_OVER = true
+                                        winner.innerHTML = "YOU WIN 🎊🎉🎊"
+                                        setTimeout(()=>{
+                                            dataCon.send('GO')
+                                        },1000)
+                                        
+                                        return
+                                    }  
+                                    _turn = 1
+                                    e.preventDefault()
+                                    turn.innerHTML = "NOW TURN IS HE/SHE"
+                                    // mark(id,'O')
+                                    dataCon.send( id)
+                                }
+                            }
                             // console.log(sqrs[i])
 
                         }
@@ -398,14 +406,39 @@
                         // dataCon.close()
                     }
                 }
-                else{
+                else if(dataCon.metadata && dataCon.metadata.isChat){
                     DataConnection = dataCon
-                    dataCon.on('data',(data)=>{
-                        //..child append
+                    DataConnection.on('data',(data)=>{
                         console.log(data)
                         document.getElementById('typingBox').style.display = 'block'
                         document.getElementById('chat').style.display = 'block'
                         appendmsg(data,'HE/SHE:')
+                    })
+                    //MIGHT CLOSE dataConn later
+                }
+                else{
+                    dataCon.on('data', data=>{
+                        if( data === 'intiate'){
+                            console.log(data)
+                                if( confirm(dataCon.peer+' want to connect with you ?')){
+                                    dataCon.send('yes')
+                                    const options = document.getElementById('options')
+                                    const inputBox = document.getElementById('input')
+                                    options.style.display = 'flex'
+                                    options.style.alignContent= 'stretch'
+                                    charcter= 'receiver'
+                                    const label = document.getElementById('conLabel')
+                                    const uuid = document.getElementById('uuid')
+                                    label.innerHTML = "Only YOU and your Peer"
+                                    uuid.innerHTML = uuid.innerHTML +" 🔛 "+ dataCon.peer
+                                    inputBox.style.display = 'none'
+                                }else{
+                                    dataCon.send('no')
+                                    // dataCon.close()
+                                    
+                                }
+                                
+                        }
                     })
                 }
                 
@@ -499,23 +532,86 @@
                 }
                 
             });
+
+            //INTIAL CONNECTIONS
+            
+            function connect() {
+                const peerId = document.querySelector('input').value
+                const options = document.getElementById('options')
+                const inputBox = document.getElementById('input')
+                let initConnection = peer.connect(peerId)
+                
+                setTimeout(()=>{
+                    initConnection.send('intiate')
+                }, 1000)
+                
+                initConnection.on('data',data=>{
+                    console.log( '507', data)
+                    if(data === 'yes'){
+                        DataConnection= peer.connect(peerId, {metadata:{isChat:true}})
+                        fixedFileChannel = peer.connect(peerId, {metadata:{isFile: true}})
+                        setTimeout(()=>{
+                            setFileHandler()
+                        },1000)
+                        // fixedTicChannel = peer.connect(peerId, {metadata:{isTic:true}})
+                        charcter= 'sender'
+                        inputBox.style.display = 'none'
+                        options.style.display = 'flex'
+                        options.style.alignContent= 'stretch'
+                        const label = document.getElementById('conLabel')
+                        const uuid = document.getElementById('uuid')
+                        label.innerHTML = "Only YOU and your Peer"
+                        uuid.innerHTML = uuid.innerHTML +" 🔛 "+ initConnection.peer                   
+                    }else if( data === 'no'){
+                        initConnection.close()
+                        alert('HE/SHE refuse to connect, try any one other.')
+                    }
+                })
+                
+                
+                
+            }
+
+            //DOM
+            const parent = document.getElementById('chat')
+            function appendmsg(data, sender){
+                const msgLabel = document.createElement('label')
+                const labelText = document.createTextNode(sender)
+                msgLabel.appendChild(labelText)
+                msgLabel.style.color = 'Orange'
+                const msgDiv = document.createElement('div')
+                msgDiv.setAttribute('id', 'msg')
+                msgDiv.style.backgroundColor= '#fff'
+                msgDiv.style.borderRadius= '10px'
+                msgDiv.style.width = 'fit-content'
+                msgDiv.style.height = 'fit-content'
+                msgDiv.style.marginLeft = '15px'
+                msgDiv.style.marginTop = '5px'
+                msgDiv.style.border= 'solid'
+                msgDiv.style.paddingTop = '10px'
+                msgDiv.style.paddingBottom = '10px'
+                msgDiv.style.paddingRight = '10px'
+                msgDiv.style.paddingLeft = '10px'
+                const msgP = document.createElement('p')
+                msgP.style.color = 'black'
+                const textNode = document.createTextNode(data)
+                msgP.appendChild(textNode)
+                msgDiv.appendChild(msgP)
+                parent.appendChild(msgLabel)
+                parent.appendChild(msgDiv)
+
+            }
             
             //CHAT
             function chat(){
-                                
-                const peerId = document.querySelector("input").value;
-                const dataCon = peer.connect(peerId)
-                DataConnection = dataCon
-                document.getElementById('typingBox').style.display = 'block'
-                
-
-                
-                dataCon.on('data', (data)=>{
-                    //..child append
-                    document.getElementById('chat').style.display = 'block'
-                    appendmsg(data,'HE/SHE:')
-                })
-                
+                if(DataConnection){
+                    document.getElementById('typingBox').style.display = 'block'
+                    DataConnection.on('data', (data)=>{
+                        //..child append
+                        document.getElementById('chat').style.display = 'block'
+                        appendmsg(data,'HE/SHE:')
+                    })
+                }
             }
             function sendMsg(con){
                 document.getElementById('chat').style.display = 'block'
@@ -612,44 +708,94 @@
             }
 
             //SHARE
-            function share(){
+            function setFileHandler() {
                 const parent = document.getElementById('share_parent')
 
-                const peerId = document.querySelector("input").value;
-                const con = peer.connect(peerId, {metadata:{isFile: true}})
+                fixedFileChannel.on('data',data=>{
+                        if(charcter === 'receiver')
+                            return;
+                        console.log(data)
+                        if(data === 'no'){
+                            fileConnection = false
+                            alert('HE/SHE denied. Please donot send any file. Or request once more')
+                            parent.style.display = 'none'
+                            return;
+                        }
+                        else if(data === 'yes'){
+                            fileConnection = true
+                            alert('you are all ready to share a file')
+                            parent.style.display = 'block'
+                            return;
+                        }
+                        else if( data === 'purpose'){
+                            if(confirm('HE/SHE want to send a file?')){
+                                    fixedFileChannel.send('yes')
+                                     fileConnection = true
+                                    return
+                                }
+                                else{
+                                    fileConnection = false
+                                    fixedFileChannel.send('no')
+                                    // dataCon.close()
+                                    return
+                                }
+                        }
+                        // if(fileConnection){
+                        else{
+                            if(fileConnection){
+                                var fileChunks = [];
+                                if (data.toString() === "EOF") {
+                                    // Once, all the chunks are received, combine them to form a Blob
+                                    const file = new Blob(fileChunks);
+                                    const fileSrc = URL.createObjectURL(file)
+                                    const fileName = 'DoorDarshan/'+Date.now();
+                                    const a = document.createElement('a')
+                                    a.setAttribute('download', fileName)
+                                    a.setAttribute('href', fileSrc)
+                                    document.body.appendChild(a)
+                                    a.click()
+                                    document.body.removeChild(a)
+                                    URL.revokeObjectURL(fileSrc);
+                                    fileChunks = []
+                                    fileConnection = false;
+                                    
+                                } else {
+                                    // Keep appending various file chunks
+                                    fileChunks.push(data);
+                                }
+                            }
+                            else{
+                                alert('Permission denied already.')
+                                return
+                            }
+                            
+                        }
+                                
 
-                // fileConnection = undefined
+                            // }
+                    })
+            }
+            function share(){
 
-                setTimeout(()=>{
-                    con.send('purpose')
-                },1000)
+                if(fixedFileChannel){
+
+                    // const parent = document.getElementById('share_parent')
+
+                    // setTimeout(()=>{
+                        fixedFileChannel.send('purpose')
+                    // },1000)
+                    
+                    setTimeout(()=>{},1000)
+                }
                 
-                con.on('data',data=>{
-                    console.log(data)
-                    if(data === 'no'){
-                        fileConnection = undefined
-                        alert('HE/SHE denied. Please donot send any file. Or request once more')
-                        parent.style.display = 'none'
-                    }
-                    else if(data === 'yes'){
-                        fileConnection = con
-                        alert('you are already to share a file')
-                        parent.style.display = 'block'
-                    }
-                })
-                con.on('close', ()=>{
-                    alert('file:/// HE/SHE denied.')
-                    fileConnection = undefined
-                })
-
-                setTimeout(()=>{},1000)
                 
             }
             async function sendFile(){
-                if( fileConnection === undefined){
+                if( fileConnection === false){
                     alert('You are not yet ready to send file.')
                     return
                 }
+                fileConnection = false
                 const fileI = document.getElementById('fileI')
                 const n = fileI.files.length
                 console.log( fileI.files)
@@ -668,13 +814,13 @@
                     // setTimeout(()=>{
                     //     fileConnection.send(chunk);
                     // },1000)
-                    fileConnection.send(chunk);
+                    fixedFileChannel.send(chunk);
                     
                     console.log( 'sent')
                     flag = false
                 }
                 setTimeout(()=>{
-                    fileConnection.send("EOF");
+                    fixedFileChannel.send("EOF");
                     console.log( 'EOF sent')
                 },10000)
                 
@@ -745,14 +891,19 @@
                     return false
                 return true
             }
+            var _turn;
             function tictactoe(){
+                if(ticConnection !== undefined){
+                    alert('you already have a ticConnection')
+                    return
+                }
                 const peerId = document.querySelector("input").value
                 let dataConn = peer.connect(peerId , {metadata:{isTic:true}})
                 ticConnection = dataConn
                 const gameConsole = document.getElementById('gameConsole')
                 const turn = document.getElementById('turn')
                 const winner = document.getElementById('winner')
-                var _turn =0
+                _turn =0
                 turn.innerHTML= "NOW TURN IS YOURS"
                 gameConsole.style.display = 'flex'
                 const sqrs = document.getElementsByClassName('square')
@@ -761,40 +912,44 @@
                 for(var i = 0 ; i < sqrs.length ; i++){
                     sqrs[i].setAttribute('id', i)
                     const id = sqrs[i].id
-                    sqrs[i].addEventListener('click', (e)=>{
-                        e.preventDefault()
-                        if(dataConn === undefined){
-                            alert( 'HE/SHE refused, you cannot play.')
-                            return
+                    // console.log( sqrs[i].onclick)
+                    if( sqrs[i].onclick === null){
+                        sqrs[i].onclick =  (e)=>{
+                            e.preventDefault()
+                            if(ticConnection === undefined){
+                                alert( 'HE/SHE refused, you cannot play.')
+                                return
+                            }
+                            if(GAME_OVER){
+                                alert('GAME OVER!!')
+                                return
+                            }
+                            if(_turn !== 0){
+                                alert('IT IS NOT YOUR TURN MAN!! PLEASE WAIT.')
+                                return
+                            }
+                            if( !mark(id,'X') ){
+                                alert('PLEASE MARK A UNMARKED SQUARE.')
+                                return
+                            }
+                            
+                            if( isWinner('X') === 'X'){
+                                ticConnection.send(id)
+                                GAME_OVER = true
+                                winner.innerHTML = "YOU WIN 🎊🎉🎊"
+                                setTimeout(() => {
+                                    ticConnection.send('GO')
+                                }, 1000);
+                                return;
+                            }
+                            _turn = 1
+                            turn.innerHTML= "NOW TURN IS HE/SHE"
+                            // mark(id,'X')
+                            ticConnection.send( id)
                         }
-                        if(GAME_OVER){
-                            alert('GAME OVER!!')
-                            return
-                        }
-                        if(_turn !== 0){
-                            alert('IT IS NOT YOUR TURN MAN!! PLEASE WAIT.')
-                            return
-                        }
-                        if( !mark(id,'X') ){
-                            alert('PLEASE MARK A UNMARKED SQUARE.')
-                            return
-                        }
-                        
-                        if( isWinner('X') === 'X'){
-                            dataConn.send(id)
-                            GAME_OVER = true
-                            winner.innerHTML = "YOU WIN 🎊🎉🎊"
-                            setTimeout(() => {
-                                dataConn.send('GO')
-                            }, 1000);
-                            return;
-                        }
-                        _turn = 1
-                        turn.innerHTML= "NOW TURN IS HE/SHE"
-                        // mark(id,'X')
-                        dataConn.send( id)
-                    })
                     // console.log(sqrs[i])
+                    }
+                    
 
                 }
                 dataConn.on('data', data=>{
@@ -806,6 +961,7 @@
                     if(data === 'rejected'){
                         alert('HE/SHE refused to play.')
                         dataConn = undefined
+                        ticConnection = undefined
                         return;
                     }
                     if(data === 'GO'){
