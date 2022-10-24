@@ -182,7 +182,7 @@
             </div>
             <div style="margin-top: 5px; margin-left: 5px; margin-bottom: 5-x;">
                 <!-- <input type="file" id="file" type=".mp4, .mkv" onchange="chooseFile(this)"> -->
-                 <button id="chooseBtn" onclick="endCall()">Stop</button> 
+                 <!-- <button id="chooseBtn" onclick="endStreamCall()">Stop</button>  -->
                 <!-- <button id="streamBtn" onclick="streamVideo()">Stream</button> -->
             </div>
         </div>
@@ -243,8 +243,9 @@
             //GLOBAL VARIABLE
             var fixedFileChannel= undefined, fixedTicChannel= undefined
             var DataConnection = undefined, fileConnection, ticConnection = undefined
-            var currentCall, streamCall, audioCall
+            var currentCall = undefined, streamCall= undefined, audioCall= undefined
             var charcter = undefined
+            var peerId = undefined
 
             //PEER
             const peer = new Peer();
@@ -432,6 +433,7 @@
                                     label.innerHTML = "Only YOU and your Peer"
                                     uuid.innerHTML = uuid.innerHTML +" 🔛 "+ dataCon.peer
                                     inputBox.style.display = 'none'
+                                    peerId = dataCon.peer
                                 }else{
                                     dataCon.send('no')
                                     // dataCon.close()
@@ -461,6 +463,11 @@
                             player.srcObject = screenStream
                             player.play()
                         })
+                        call.on('close', ()=>{
+                            alert('HE/SHE stopped streaming')
+                            parent.style.display = 'block'
+                            streamCall = undefined
+                        })
                     }else{
                         call.close()
                     }
@@ -482,7 +489,7 @@
                                     })
                                     call.on('close', ()=>{
                                         console.log('receiver closed called')
-
+                                        audioCall= undefined
                                         endAudioCall()
                                     })
                                  }).catch( err=>{
@@ -509,7 +516,7 @@
                                         // answer the call
                                         call.answer(stream);
 
-                                        // save the close function
+                                        
                                         currentCall = call;
                                         
                                         call.on("stream", (remoteStream) => {
@@ -518,6 +525,7 @@
                                             document.getElementById("remote-video").play();
                                         });
                                         call.on('close', ()=>{
+                                            currentCall = undefined
                                             endCall()
                                         })
                                     })
@@ -536,7 +544,7 @@
             //INTIAL CONNECTIONS
             
             function connect() {
-                const peerId = document.querySelector('input').value
+                peerId = document.querySelector('input').value
                 const options = document.getElementById('options')
                 const inputBox = document.getElementById('input')
                 let initConnection = peer.connect(peerId)
@@ -625,56 +633,63 @@
             
             //VIDEO CALL
             async function callUser() {
-                // get the id entered by the user
-                const peerId = document.querySelector("input").value;
-            // grab the camera and mic
-                try{
-                    var stream = await navigator.mediaDevices.getUserMedia({
-                        video: true,
-                        audio: true,
+                
+                if( currentCall === undefined){
+
+                
+                    try{
+                        var stream = await navigator.mediaDevices.getUserMedia({
+                            video: true,
+                            audio: true,
+                        });
+                    }catch( err){
+                        alert('cannot get local stream')
+                        console.log( err)
+                        return
+                    }
+                    
+                
+                    document.getElementById("menu").style.display = "none";
+                    document.getElementById("live").style.display = "block";
+                    document.getElementById("local-video").srcObject = stream;
+                    document.getElementById("local-video").play();
+                
+                    const call = peer.call(peerId, stream);
+
+                    call.on("stream", (stream) => {
+                        document.getElementById("remote-video").srcObject = stream;
+                        document.getElementById("remote-video").play();
                     });
-                }catch( err){
-                    alert('cannot get local stream')
-                    console.log( err)
+
+                    call.on("data", (stream) => {
+                        document.querySelector("#remote-video").srcObject = stream;
+                    });
+
+                    call.on("error", (err) => {
+                        console.log(err);
+                    });
+
+                    call.on('close', () => {
+                        currentCall = undefined
+                        endCall()
+                    })
+
+                
+                    currentCall = call;
+                }else{
+                    alert('you already have a video channel, please use that')
                     return
                 }
-                
-            // switch to the video call and play the camera preview
-                document.getElementById("menu").style.display = "none";
-                document.getElementById("live").style.display = "block";
-                document.getElementById("local-video").srcObject = stream;
-                document.getElementById("local-video").play();
-            // make the call
-                const call = peer.call(peerId, stream);
-
-                call.on("stream", (stream) => {
-                    document.getElementById("remote-video").srcObject = stream;
-                    document.getElementById("remote-video").play();
-                });
-
-                call.on("data", (stream) => {
-                    document.querySelector("#remote-video").srcObject = stream;
-                });
-
-                call.on("error", (err) => {
-                    console.log(err);
-                });
-
-                call.on('close', () => {
-                    endCall()
-                })
-
-            // save the close function
-                currentCall = call;
             }
 
             function endCall() {
-                // Go back to the menu
+                
                 document.querySelector("#menu").style.display = "block";
                 document.querySelector("#live").style.display = "none";
-            // If there is no current call, return
-                if (!currentCall) return;
-            // Close the call, and reset the function
+            
+                if (currentCall === undefined) 
+                    return;
+            
                 try {
                     currentCall.close();
                 } catch {}
@@ -696,15 +711,27 @@
                 return captureScreen
             }
             async function stream(){
-                const peerId = document.querySelector("input").value;
-                startCapture({displaySurface:['application' , 'browser', 'monitor', 'window']})
-                            .then((screenStream)=> {
-                                screenStream.isStreaming = true
-                                console.log( screenStream)
-                                const mediaCon = peer.call(peerId, screenStream ,{metadata: {isStreaming : true}})
-                                
-                            })
+                if( streamCall === undefined){
+                    startCapture({displaySurface:['application' , 'browser', 'monitor', 'window']})
+                    .then((screenStream)=> {
+
+                        console.log( screenStream)
+                        streamCall = peer.call(peerId, screenStream ,{metadata: {isStreaming : true}})
+                        
+                    }).catch( err => {
+                        endStreamCall()
+                    })
+                }
                 
+                
+            }
+            function endStreamCall() {
+                const parent = document.getElementById('stream_parent')
+                parent.style.display = 'none'
+                if(streamCall === undefined)
+                    return;
+                streamCall.close()
+                streamCall = undefined
             }
 
             //SHARE
@@ -830,34 +857,41 @@
             
             //AUDIO CALL
             async function audioCall(){
-                const peerId = document.querySelector("input").value
-                const parent = document.getElementById('audio_parent')
-                const player = document.getElementById('audioPlayer')
-                parent.style.display = 'block'
-                try{
-                    var stream = await navigator.mediaDevices.getUserMedia({video:false, audio:true})
-                }catch( err){
-                    console.log( 'cannot get the user media stream')
+                if( audioCall === undefined){
+
+                    const parent = document.getElementById('audio_parent')
+                    const player = document.getElementById('audioPlayer')
+                    parent.style.display = 'block'
+                    try{
+                        var stream = await navigator.mediaDevices.getUserMedia({video:false, audio:true})
+                    }catch( err){
+                        console.log( 'cannot get the user media stream')
+                        return
+                    }
+
+                    const mediaCon = peer.call( peerId, stream ,  {metadata:{isAudio:true}})
+                    mediaCon.on( 'stream' , (stream)=>{
+                        player.srcObject = stream
+                        player.play()
+                    })
+
+                    mediaCon.on('close', () => {
+                        alert('HE/SHE cut the call')
+                        console.log('caller closed called')
+                        audioCall = undefined
+                        endAudioCall()
+                    })
+                    
+                    audioCall = mediaCon
+                }else{
+                    alert('you already have an audio channel exists, use that')
                     return
                 }
-                const mediaCon = peer.call( peerId, stream ,  {metadata:{isAudio:true}})
-                mediaCon.on( 'stream' , (stream)=>{
-                    player.srcObject = stream
-                    player.play()
-                })
-
-                mediaCon.on('close', () => {
-                    alert('HE/SHE cut the call')
-                    console.log('caller closed called')
-                    endAudioCall()
-                })
-                
-                audioCall = mediaCon
             }
             function endAudioCall(){
                 const parent = document.getElementById('audio_parent')
                 parent.style.display = 'none'
-                if(!audioCall)
+                if(audioCall === undefined)
                     return
                 console.log('audio-call',audioCall)
                 audioCall.close()
