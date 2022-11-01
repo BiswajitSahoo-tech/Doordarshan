@@ -5,9 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="author" content="Biswajit Sahoo">
     <meta name="generator" content="Hugo 0.104.2">
-    <title>Sidebars · Bootstrap v5.2</title>
+    <title><%= title %></title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/sidebars/">
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
@@ -17,12 +17,12 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <!-- Favicons -->
-<link rel="apple-touch-icon" href="/docs/5.2/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
+<!-- <link rel="apple-touch-icon" href="/docs/5.2/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/docs/5.2/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/docs/5.2/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="/docs/5.2/assets/img/favicons/manifest.json">
 <link rel="mask-icon" href="/docs/5.2/assets/img/favicons/safari-pinned-tab.svg" color="#712cf9">
-<link rel="icon" href="/docs/5.2/assets/img/favicons/favicon.ico">
+<link rel="icon" href="/docs/5.2/assets/img/favicons/favicon.ico"> -->
 <meta name="theme-color" content="#712cf9">
 
 
@@ -162,6 +162,7 @@
   }
   #chat{
       background-color: rgb(210, 210, 210);
+      background: url('/img/chat-back.png');
       width: 100%;
       height: 91%;
       overflow-x: hidden;
@@ -193,6 +194,7 @@
 
   #msg p {
     margin-bottom: 1%;
+    overflow-wrap: anywhere;
   }
 
   #msgBlock {
@@ -213,8 +215,9 @@
     align-items: stretch;
     width: 100%;
     height: 7%;
-    margin-bottom: 0.8%;
-      
+    /* margin-bottom: 0.8%; */
+    margin-bottom: 8px;
+    margin-top: 8px; 
 
   }
   #stream_parent_caller {
@@ -390,11 +393,49 @@
     justify-content: center;
     align-items: center;
   }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  
+
+  /* .container {
+    padding: 100px 30px;
+    width: 100%;
+    margin: 0 auto;
+    max-width: 900px;
+  } */
+
+  .image-stack {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(12, 1fr);
+  }
+
+  .image-stack__item--top {
+    grid-column: 4/-1;
+    grid-row: 1;
+    padding-top: 20%;
+    z-index: 1;
+    
+  }
+
+  .image-stack__item--bottom {
+    grid-row: 1;
+    grid-column: 1/span 8;
+    
+  }
+
+  .image-stack img {
+    width: 100%;
+    display: block;
+  }
   </style>
 
     
     <!-- Custom styles for this template -->
-    <link href="sidebars.css" rel="stylesheet">
+    <link href="/css/sidebars.css" rel="stylesheet">
   </head>
   <body>
     
@@ -467,13 +508,12 @@
 
   <div class="d-flex flex-column flex-shrink-0 bg-light" style="width: 4.5rem;">
     <a href="/"  class="d-block p-3 link-dark text-decoration-none" title="Icon-only" data-bs-toggle="tooltip" data-bs-placement="right">
-      <svg class="bi pe-none" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
-      <span class="visually-hidden">Icon-only</span>
+      <img src="/img/logo.svg" style="width: 109%;">
     </a>
     <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
 
       <li >
-        <a href="#" id="achat"  onclick="chat(this)" onclick="clicked(this)" class="nav-link py-3 border-bottom rounded-0" aria-current="page" title="Chat" data-bs-toggle="tooltip" data-bs-placement="right">
+        <a  id="achat"  onclick="chat(this)" onclick="clicked(this)" class="nav-link py-3 border-bottom rounded-0" aria-current="page" title="Chat" data-bs-toggle="tooltip" data-bs-placement="right">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-chat-left" viewBox="0 0 16 16">
             <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
           </svg>
@@ -482,7 +522,7 @@
       </li>
 
       <li>
-        <a href="#" id="avideo" onclick="videoPanel(this)" onclick="clicked(this)"  class="nav-link py-3 border-bottom rounded-0" title="Video Call" data-bs-toggle="tooltip" data-bs-placement="right">
+        <a  id="avideo" onclick="videoPanel(this)" onclick="clicked(this)"  class="nav-link py-3 border-bottom rounded-0" title="Video Call" data-bs-toggle="tooltip" data-bs-placement="right">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
           </svg>
@@ -491,7 +531,7 @@
       </li>
 
       <li>
-        <a href="#" id="acall" onclick="startAudioCall()" onclick="clicked(this)" class="nav-link py-3 border-bottom rounded-0" title="Call" data-bs-toggle="tooltip" data-bs-placement="right">
+        <a  id="acall" onclick="startAudioCall()" onclick="clicked(this)" class="nav-link py-3 border-bottom rounded-0" title="Call" data-bs-toggle="tooltip" data-bs-placement="right">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-telephone-forward" viewBox="0 0 16 16">
             <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511zm10.762.135a.5.5 0 0 1 .708 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 0 1-.708-.708L14.293 4H9.5a.5.5 0 0 1 0-1h4.793l-1.647-1.646a.5.5 0 0 1 0-.708z"/>
           </svg>
@@ -500,7 +540,7 @@
       </li>
 
       <li>
-        <a href="#" id="astream" onclick="streamPanel(this)" onclick="clicked(this)" class="nav-link py-3 border-bottom rounded-0" title="Stream" data-bs-toggle="tooltip" data-bs-placement="right">
+        <a  id="astream" onclick="streamPanel(this)" onclick="clicked(this)" class="nav-link py-3 border-bottom rounded-0" title="Stream" data-bs-toggle="tooltip" data-bs-placement="right">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-broadcast" viewBox="0 0 16 16">
             <path d="M3.05 3.05a7 7 0 0 0 0 9.9.5.5 0 0 1-.707.707 8 8 0 0 1 0-11.314.5.5 0 0 1 .707.707zm2.122 2.122a4 4 0 0 0 0 5.656.5.5 0 1 1-.708.708 5 5 0 0 1 0-7.072.5.5 0 0 1 .708.708zm5.656-.708a.5.5 0 0 1 .708 0 5 5 0 0 1 0 7.072.5.5 0 1 1-.708-.708 4 4 0 0 0 0-5.656.5.5 0 0 1 0-.708zm2.122-2.12a.5.5 0 0 1 .707 0 8 8 0 0 1 0 11.313.5.5 0 0 1-.707-.707 7 7 0 0 0 0-9.9.5.5 0 0 1 0-.707zM10 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
           </svg>
@@ -510,7 +550,7 @@
 
 
       <li>
-        <a href="#" id="afile" onclick="sharePanel(this)" onclick="clicked(this)" class="nav-link py-3 border-bottom rounded-0" title="File Share" data-bs-toggle="tooltip" data-bs-placement="right">
+        <a  id="afile" onclick="sharePanel(this)" onclick="clicked(this)" class="nav-link py-3 border-bottom rounded-0" title="File Share" data-bs-toggle="tooltip" data-bs-placement="right">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-folder-symlink" viewBox="0 0 16 16">
             <path d="m11.798 8.271-3.182 1.97c-.27.166-.616-.036-.616-.372V9.1s-2.571-.3-4 2.4c.571-4.8 3.143-4.8 4-4.8v-.769c0-.336.346-.538.616-.371l3.182 1.969c.27.166.27.576 0 .742z"/>
             <path d="m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14h10.348a2 2 0 0 0 1.991-1.819l.637-7A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm.694 2.09A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09l-.636 7a1 1 0 0 1-.996.91H2.826a1 1 0 0 1-.995-.91l-.637-7zM6.172 2a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z"/>
@@ -548,15 +588,23 @@
 
     </div>
     <div class="dropdown border-top">
-      <a href="#" class="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        <img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
+      <a href="" class="d-flex align-items-center justify-content-center  link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 1.2rem 6px 1.2rem 6px;">
+        <div class="image-stack">
+          <div class="image-stack__item image-stack__item--bottom">
+            <img id="btm-img" src="/img/users/<%= user.photo %>" alt="" width="24" height="24" class="rounded-circle">
+          </div>
+          <div class="image-stack__item  image-stack__item--top">
+            <img id="top-img" src="/img/users/<%= user.photo %>" alt="" width="24" height="24" class="rounded-circle">
+          </div>
+        </div>
+        <!-- <img src="/img/users/<%= user.photo %>" alt="" width="24" height="24" class="rounded-circle"> -->
       </a>
       <ul class="dropdown-menu text-small shadow">
-        <li><a class="dropdown-item" href="#">New project...</a></li>
-        <li><a class="dropdown-item" href="#">Settings</a></li>
-        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li><a class="dropdown-item" href="#">Details</a></li>
+        <li><a class="dropdown-item" href="">Settings</a></li>
+        <!-- <li><a class="dropdown-item" href="#">Profile</a></li> -->
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#">Sign out</a></li>
+        <li><a id="disCnt" class="dropdown-item" href="#">Disconnect</a></li>
       </ul>
     </div>
   </div>
@@ -568,7 +616,7 @@
 
     <!-- CHAT BLOCK -->
     <div  id="chatPage">
-      <div id="chat">
+      <div id="chat" >
         
            
            
@@ -576,7 +624,11 @@
       </div>
       <div id="typingBox">
         <input type="text" id="typing" placeholder="Enter your messsage" style="width: 90%;border-radius: 30px;border: 0;box-shadow: 0px 0px 3px;font-family: system-ui;padding-left: 3%;font-size: 100%;padding-right: 3%;">
-        <button id = "sendBtn" onclick="send()" style=" margin-left: 0.5%;width: 10%;font-family: system-ui;border-radius: 30px;font-weight: bold;border: 0;box-shadow: 0px 0px 2px;">Send</button>
+        <button id = "sendBtn" onclick="send()" style=" margin-left: 0.5%;width: 10%;font-family: system-ui;border-radius: 30px;font-weight: bold;border: 0;box-shadow: 0px 0px 2px; background-color: blue;color: white;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
+            <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
+          </svg>
+        </button>
       </div>
 
     </div>
@@ -608,7 +660,7 @@
         <div style="display: flex;flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: stretch;width: 100%;height: 100%;">
           <div style="border:solid; border-radius:10px; height: 80%; display: flex;flex-direction: row;flex-wrap: nowrap;align-content: center;justify-content: center;align-items: center;">
             <div style="border: dotted;width: 96%;height: 96%;border-radius: 10px; display: flex;flex-direction: column;flex-wrap: nowrap;align-content: center;justify-content: center;align-items: center; background-color: #f4fcff;;">
-              <img src="folder.png" style="height: 25%;">
+              <img src="/img/folder.png" style="height: 25%;">
               <p style="text-align: center;">Drag and Drop your file here</p>
             </div>
           </div>
@@ -619,9 +671,9 @@
     <div id="sharePanel">
         
       <div style="width: 90%;height: 65%; display: flex;flex-direction: column;flex-wrap: nowrap;align-content: center;justify-content: center;align-items: center;">
-          <p style="text-align: center;overflow-wrap: break-word;font-weight: BOLD;font-family: system-ui;font-size: 172%;"> Currently you are not streaming anything</p>
+          <p style="text-align: center;overflow-wrap: break-word;font-weight: BOLD;font-family: system-ui;font-size: 172%;">Request to your peer to share a file</p>
       </div>
-      <button onclick="share()" style="width: inherit;height: 14%;border-radius: 10px;background-color: aliceblue;    width: inherit;font-family: system-ui;border: 0;box-shadow: 0px 0px 2px 0px;"><B>Request to share</B></button>
+      <button onclick="share()" style="width: inherit;height: 14%;border-radius: 10px;background-color: aliceblue;    width: inherit;font-family: system-ui;border: 0;box-shadow: 0px 0px 2px 0px;"><B>Request</B></button>
     </div>
     <!-- SHARE BLOCK END -->
 
@@ -636,7 +688,7 @@
     <div id="videoPanel">
         
       <div style="width: 90%;height: 65%; display: flex;flex-direction: column;flex-wrap: nowrap;align-content: center;justify-content: center;align-items: center;">
-          <p style="text-align: center;overflow-wrap: break-word;font-weight: BOLD;font-family: system-ui;font-size: 172%;"> Currently you are not streaming anything</p>
+          <p style="text-align: center;overflow-wrap: break-word;font-weight: BOLD;font-family: system-ui;font-size: 172%;"> Request a video call</p>
       </div>
       <button onclick="callUser()" style="width: inherit;height: 14%;border-radius: 10px;background-color: aliceblue;    width: inherit;font-family: system-ui;border: 0;box-shadow: 0px 0px 2px 0px;"><B>Request a call</B></button>
     </div>
@@ -689,13 +741,13 @@
     <!-- GAME DIV END -->
   </div>
 
-  
+  <div id="wrksDataStore" data-peerid="<%= user.peerId %>" data-recpeerid="<%= con.receiverPeerId %>" data-calpeerid="<%= con.callerPeerId %>" data-connid="<%= con._id %>"></div>
 </main>
 
 
     <!-- <script src="/docs/5.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
-    <script src="sidebars.js"></script>
+    <script src="/js/sidebars.js"></script>
 
       <script>
         function showRange(){
@@ -741,39 +793,39 @@
         }
 
       </script>
+
+      <script src="/js/bundle.js"></script>
+
     <script>
+            
             //GLOBAL VARIABLE
             var fixedFileChannel= undefined, fixedTicChannel= undefined
             var DataConnection = undefined, fileConnection=false, ticConnection = undefined
             var currentCall = undefined, streamCall= undefined, audioCall= undefined
+             
             var charcter = undefined
-            // var peerId = undefined
-            var peerId = null
+            const wrksDataStore = document.getElementById('wrksDataStore')
+            var yourPeerId = wrksDataStore.dataset.peerid
+            var peerId = wrksDataStore.dataset.recpeerid
 
-            const peer = new Peer();
+            if( peerId === yourPeerId){
+              charcter = 'receiver'
+              peerId = wrksDataStore.dataset.calpeerid
+            }else{
+              charcter = 'sender'
+            }
+            const peer = new Peer(yourPeerId);
 
             peer.on("open", function (id) {
-                // document.getElementById("uuid").textContent = id;
-                console.log( id)
-                //PROMPT BOX
-                
-                while(peerId == null || peerId ==''){
-                  peerId= prompt('Enter the ID of your peer to use the app',id)
-                  if(peerId != null && peerId != '' && peerId != 'receiver'){
-                    connect()
-                    alert('Thanks, Connnecting.....')
-                  }
-                  if(peerId == 'receiver'){
-                    break;
-                  }
-                }
+                console.log('connected', id,' ',charcter,' ', peerId)
             });
 
             //====================================
             peer.on('connection', (dataCon)=> {
-                // DataConnection = dataCon
+                
                 console.log(dataCon)
                 if(dataCon.metadata && dataCon.metadata.isFile){
+                        
                         if(charcter === 'sender'){
                             console.log('you are sender and you shouldnt be here')
                             return
@@ -783,67 +835,7 @@
                         
                         fixedFileChannel = dataCon
                         setFileHandler()
-                        // fixedFileChannel.on("data", data => {
-                            
-                        //     console.log( data)
-                        //     if(data === 'purpose'){
-                        //         if(confirm('HE/SHE want to send a file?')){
-                        //             dataCon.send('yes')
-                        //             // fileConnection = true
-                        //             return
-                        //         }
-                        //         else{
-                        //             // fileConnection = false
-                        //             dataCon.send('no')
-                        //             // dataCon.close()
-                        //             return
-                        //         }
-                        //         //MIGHT CLOSE dataConn later
-                        //     }
-                        //     else if(data === 'no'){
-                        //         fileConnection = false
-                        //         alert('HE/SHE denied. Please donot send any file. Or request once more')
-                        //         parent.style.display = 'none'
-                        //         return
-                        //     }
-                        //     else if(data === 'yes'){
-                        //         fileConnection = true
-                        //         alert('you are all ready to share a file')
-                        //         parent.style.display = 'block'
-                            
-                        //         return
-                        //     }
-                        //     // if(fileConnection){
-                        //     else{
-                        //         var fileChunks = [];
-                        //         if (data.toString() === "EOF") {
-                        //             // Once, all the chunks are received, combine them to form a Blob
-                        //             const file = new Blob(fileChunks);
-                        //             const fileSrc = URL.createObjectURL(file)
-                        //             const fileName = 'DoorDarshan/'+Date.now();
-                        //             const a = document.createElement('a')
-                        //             a.setAttribute('download', fileName)
-                        //             a.setAttribute('href', fileSrc)
-                        //             document.body.appendChild(a)
-                        //             a.click()
-                        //             document.body.removeChild(a)
-                        //             URL.revokeObjectURL(fileSrc);
-                        //             fileChunks = []
-                        //             fileConnection = false;
-                                    
-                        //         } else {
-                        //             // Keep appending various file chunks
-                        //             fileChunks.push(data);
-                        //         }
-                        //     }
-                                
-                        //     // }
-                        //     // else{
-                        //     //     alert('Permission rejected')
-                        //     // }
-                        // })
-                    
-                        //MIGHT CLOSE dataConn later
+                        
                 }
                 else if(dataCon.metadata && dataCon.metadata.isTic){
                     if(confirm('HE/SHE wants to play TIC-TAC-TOE')){
@@ -935,43 +927,16 @@
                     }
                 }
                 else if(dataCon.metadata && dataCon.metadata.isChat){
+                    
                     DataConnection = dataCon
                     DataConnection.on('data',(data)=>{
                         console.log(data)
-                        // document.getElementById('typingBox').style.display = 'block'
-                        // document.getElementById('chat').style.display = 'block'
                         appendmsg(data,'HE/SHE:')
                     })
                     //MIGHT CLOSE dataConn later
                 }
                 else{
-                    dataCon.on('data', data=>{
-                        if( data === 'intiate'){
-                            console.log(data)
-                                if( confirm(dataCon.peer+' want to connect with you ?')){
-                                    
-                                    dataCon.send('yes')
-                                    peerId = dataCon.peer
-                                    charcter= 'receiver'
-
-                                    // const options = document.getElementById('options')
-                                    // const inputBox = document.getElementById('input')
-                                    // options.style.display = 'flex'
-                                    // options.style.alignContent= 'stretch'
-                                    // const label = document.getElementById('conLabel')
-                                    // const uuid = document.getElementById('uuid')
-                                    // label.innerHTML = "Only YOU and your Peer"
-                                    // uuid.innerHTML = uuid.innerHTML +" 🔛 "+ dataCon.peer
-                                    // inputBox.style.display = 'none'
-                                    
-                                }else{
-                                    dataCon.send('no')
-                                    // dataCon.close()
-                                    
-                                }
-                                
-                        }
-                    })
+                    
                 }
                 
             })
@@ -1080,51 +1045,22 @@
             });
             //====================================
             function connect() {
+              DataConnection= peer.connect(peerId, {metadata:{isChat:true}})
+              fixedFileChannel = peer.connect(peerId, {metadata:{isFile: true}})
               
-                // console.log('connnn')
-                // peerId = document.querySelector('input').value
-                // const options = document.getElementById('options')
-                // const inputBox = document.getElementById('input')
-                let initConnection = peer.connect(peerId)
-                
-                setTimeout(()=>{
-                    initConnection.send('intiate')
-                }, 3000)
-                
-                initConnection.on('data',data=>{
-                    console.log(  data)
-                    if(data === 'yes'){
-                        DataConnection= peer.connect(peerId, {metadata:{isChat:true}})
-                        fixedFileChannel = peer.connect(peerId, {metadata:{isFile: true}})
-                        setTimeout(()=>{
-                            setFileHandler()
-                            DataConnection.on('data', (data)=>{
-                                //..child append
-                                // document.getElementById('chat').style.display = 'block'
-                                appendmsg(data,'HE/SHE:')
-                            })
-                        },1000)
-                        // fixedTicChannel = peer.connect(peerId, {metadata:{isTic:true}})
-                        charcter= 'sender'
-                        // inputBox.style.display = 'none'
-                        // options.style.display = 'flex'
-                        // options.style.alignContent= 'stretch'
-                        // const label = document.getElementById('conLabel')
-                        // const uuid = document.getElementById('uuid')
-                        // label.innerHTML = "Only YOU and your Peer"
-                        // uuid.innerHTML = uuid.innerHTML +" 🔛 "+ initConnection.peer                   
-                    }else if( data === 'no'){
-                        initConnection.close()
-                        alert('HE/SHE refuse to connect, try any one other.')
-                    }
-                })
-                
-                
-                
+              setFileHandler()
+              DataConnection.on('data',(data)=>{
+                console.log(data)
+                appendmsg(data,'HE/SHE:')
+              })
             }
-            // setTimeout(()=>{
-            //   connect()
-            // },5000)
+            
+            setTimeout(()=>{
+              if(charcter === 'sender'){
+                connect()
+              }
+                
+            },5000)
 
             
             
@@ -1219,17 +1155,7 @@
                 
                 const msgDiv = document.createElement('div')
                 msgDiv.setAttribute('id', 'msg')
-                // msgDiv.style.backgroundColor= '#fff'
-                // msgDiv.style.borderRadius= '10px'
-                // msgDiv.style.width = 'fit-content'
-                // msgDiv.style.height = 'fit-content'
-                // msgDiv.style.marginLeft = '15px'
-                // msgDiv.style.marginTop = '5px'
-                // msgDiv.style.border= 'solid'
-                // msgDiv.style.paddingTop = '10px'
-                // msgDiv.style.paddingBottom = '10px'
-                // msgDiv.style.paddingRight = '10px'
-                // msgDiv.style.paddingLeft = '10px'
+                
                 const msgP = document.createElement('p')
                 // msgP.style.color = 'black'
                 const textNode = document.createTextNode(data)
@@ -1261,6 +1187,9 @@
             function sendMsg(con){
                 // document.getElementById('chat').style.display = 'block'
                 const msg = document.getElementById('typing').value
+                if(msg === "")
+                  return;
+                document.getElementById('typing').value = null
                 appendmsg(msg,'YOU:')
                 con.send(msg)
             }
@@ -1582,7 +1511,7 @@
               ticConnection.send('exit');
               setTimeout(() => {
                 ticConnection = undefined
-                dataConn.close()
+                // dataConn.close()
               }, 2000);
               reset('notbtn')
               document.getElementById('gamePanel').style.display = 'flex'

@@ -1,0 +1,7 @@
+*.env
+node_modules
+.cache
+_index.html
+profileCard.css
+profileCard.html
+profilecard.pug

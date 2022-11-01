@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/css/natours.css">
+        <link rel="shortcut icon" type="image/png" href="/img/logo.svg">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300i,700">
+        <title>Your Account</title>
+    </head>
+    <body>
+        <!--HEADER-->
+        <header class="header">
+            <nav class="nav nav--tours">
+                <a class="nav__el" href="/">DoorDarshan</a>
+            </nav>
+            <div class="header__logo">
+                <img src="/img/logo.svg" alt="logo">
+            </div>
+            <nav class="nav nav--user">
+                <a class="nav__el nav__el--logout">Log Out</a>
+                <a class="nav__el" href="/me">
+                    <img class="nav__user-img" src="/img/users/<%= user.photo %>" alt="User photo">
+                    <span><%= user.name %></span>
+                </a>
+            </nav>
+        </header>
+        <!--Content-->
+        <main class="main">
+            <div class="user-view">
+                <nav class="user-view__menu">
+                    <ul class="side-nav">
+                        <li class="side-nav--active">
+                            <a href="">
+                                <svg>
+                                    <use xlink:href="img/icons.svg#icon-settings"></use>
+                                </svg>
+                                Settings
+                            </a>
+                        </li>
+                        <!-- <li>
+                            <a href="">
+                                <svg>
+                                    <use xlink:href="img/icons.svg#icon-briefcase"></use>
+                                </svg>
+                                My bookings
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <svg>
+                                    <use xlink:href="img/icons.svg#icon-star"></use>
+                                </svg>
+                                My reviews
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <svg>
+                                    <use xlink:href="img/icons.svg#icon-credit-card"></use>
+                                </svg>
+                                Billing
+                            </a>
+                        </li> -->
+                    </ul>
+                </nav>
+                <div class="user-view__content">
+                    <div class="user-view__form-container">
+                        <h2 class="heading-secondary ma-bt-md">Your account settings</h2>
+                        <!--multipart is for image upload and without it the form will ignore the-->
+                        <!--the file -->
+                        <form class="form form-user-data">
+                            <div class="form__group">
+                                <label class="form__label" for="name">Name</label>
+                                <input class="form__input" id="name" type="text" value="<%= user.name %>" required name="name">
+                            </div>
+                            <div class="form__group ma-bt-md">
+                                <label class="form__label" for="email">Email address</label>
+                                <input class="form__input" id="email" type="email" value="<%= user.email %>" required name="email">
+                            </div>
+                            <div class="form__group ma-bt-md">
+                                <label class="form__label" for="bio">Bio</label>
+                                <input class="form__input" id="bio" type="text" value="<%= user.bio %>"  name="bio">
+                            </div>
+                            <div class="form__group form__photo-upload">
+                                <img class="form__user-photo" src="/img/users/<%= user.photo %>" alt="User photo">
+                                <input class="form__upload" type="file" accept="image/*" id="photo" name="photo">
+                                <label for="photo">Choose new photo </label>
+                            </div>
+                            <div class="form__group right">
+                                <button class="btn btn--small btn--blue">Save settings</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="line">&nbsp;</div>
+                    <div class="user-view__form-container">
+                        <h2 class="heading-secondary ma-bt-md">Password change</h2>
+                        <form class="form form-user-password">
+                            <div class="form__group">
+                                <label class="form__label" for="password-current">Current password</label>
+                                <input class="form__input" id="password-current" type="password" placeholder="••••••••" required minlength="8">
+                            </div>
+                            <div class="form__group">
+                                <label class="form__label" for="password">New password</label>
+                                <input class="form__input" id="password" type="password" placeholder="••••••••" required minlength="8">
+                            </div>
+                            <div class="form__group ma-bt-lg">
+                                <label class="form__label" for="password-confirm">Confirm password</label>
+                                <input class="form__input" id="password-confirm" type="password" placeholder="••••••••" required minlength="8">
+                            </div>
+                            <div class="form__group right">
+                                <button class="btn btn--small btn--blue btn--save-password">Save password</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+       
+        
+        
+        <script src="/js/bundle.js"></script>
+    </body>
+</html>
