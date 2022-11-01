@@ -1,0 +1,169 @@
+/* body {
+    font-size: 16px;
+    color: #404040;
+    font-family :Montserrat, sans-serif;
+    background-image :linear-gradient(to bottom right, #ff9eaa 0% 65%, #e860ff 95% 100%);
+    background-position: center;
+    background-attachment: fixed;
+    margin :0;
+    
+    padding :2rem 0;
+    display: grid;
+    place-items :center;
+    box-sizing :border-box;
+} */
+.Card {
+    font-size: 16px;
+    color: #404040;
+    font-family :Montserrat, sans-serif;
+    /* background-image :linear-gradient(to bottom right, #ff9eaa 0% 65%, #e860ff 95% 100%); */
+    /* background-position: center;
+    background-attachment: fixed; */
+    margin-bottom :4%;
+    /* padding :2rem 0; */
+    display: grid; 
+    /* place-items :center; */
+    box-sizing :border-box;
+    /*  */
+    background-color: white;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    overflow :hidden;
+    border-radius :2rem;
+    box-shadow: 0px 1rem 1.5rem gainsboro
+   
+}
+
+.Card .banner {
+    background-image: url(https://images.unsplash.com/photo-1545703549-7bdb1d01b734?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 11rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    box-sizing :border-box;
+    
+}
+.Card .banner svg {
+      background-color: white;
+      width: 8rem;
+      height: 8rem;
+      box-shadow: 1px 0rem 1rem;
+      border-radius: 50%;
+      transform: translateY(50%);
+      transition: transform 200ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      /* ::hover
+        transform translateY(50%) scale(1.3); */
+}
+.Card .banner svg:hover {
+    transform: translateY(50%) scale(1.3);
+}
+.Card .menu{
+    width: 100%;
+    height: 5.5rem;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    position: relative;
+    box-sizing :border-box;
+
+}
+
+.Card .menu .opener{
+    width: 2.5rem;
+    height: 2.5rem;
+    position :relative;
+    border-radius: 50%;
+    transition: background-color 100ms ease-in-out
+    /* &:hover
+      background-color #f2f2f2 */
+}
+
+.Card .menu .opener span {
+        background-color: #404040;
+        width :0.4rem;
+        height:0.4rem;
+        position: absolute;
+        top :0;
+        /* left: calc(50% ) % (dot-size / 2) */
+        border-radius: 50%;
+        /* &:nth-child(1)
+          top 0.45rem
+        &:nth-child(2)
+          top 1.05rem
+        &:nth-child(3)
+          top 1.65rem */
+}
+.Card .menu .opener span:nth-child(1) {
+    top : 0.45rem;
+}
+.Card .menu .opener span:nth-child(2) {
+    top: 1.05rem
+}
+.Card .menu .opener span:nth-child(3) {
+    top: 1.65rem
+}
+
+.Card .name {
+    text-align :center;
+    padding: 0 2rem 0.5rem;
+    margin :0;
+    font-weight: bold;
+}
+
+.Card .title {
+    /* color :lighten(#404040, 50%); */
+    color: #404040;
+    opacity: 50%;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 0 2rem 1.2rem;
+}
+
+.Card .actions {
+    padding: 0 2rem 1.2rem;
+    display: flex;
+    flex-direction :column;
+    order :99;
+}
+
+.Card .actions .follow-btn button{
+        color: inherit;
+        font: inherit;
+        font-weight: bold;
+        background-color: #ffd01a;
+        width: 100%;
+        border: none;
+        padding: 1rem;
+        outline: none;
+        box-sizing: border-box;
+        border-radius: 1.5rem / 50%;
+        transition: background-color 100ms ease-in-out, transform 200ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        /* &:hover
+          background-color #efb10a
+          transform scale(1.1)
+        &:active
+          background-color #e8a200
+          transform scale(1) */
+}
+.Card .actions .follow-btn button:hover {
+    background-color: #efb10a ;
+    transform :scale(1.1);
+}
+.Card .actions .follow-btn button:active {
+    background-color: #e8a200;
+    transform :scale(1);
+}
+
+.Card .desc{
+    text-align:justify;
+    padding: 0 2rem 2.5rem;
+    order: 100;
+}
+      
+    
+
