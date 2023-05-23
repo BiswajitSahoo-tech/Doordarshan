@@ -139,10 +139,10 @@ export const connect= (Id,callerPeerId,receiverPeerId)=> {
                         console.log( res.data)
                    }
                    
-                } catch( err){
-                    console.log(err)
+            } catch( err){
+                console.log(err)
                     
-                }
+            }
                                
         }else if( data === 'no'){
             initConnection.close()

@@ -819,7 +819,7 @@
 
             peer.on("open", function (id) {
                 console.log('connected', id,' ',charcter,' ', peerId)
-            });
+            }); 
 
             //====================================
             peer.on('connection', (dataCon)=> {
@@ -948,8 +948,9 @@
                 console.log(call)
                 
                 if( call.metadata && call.metadata.isStreaming){
-                    call.answer()
+                    
                     if( confirm('HE/SHE want to stream something special?')){
+                        call.answer()
                         streamCall = call
                         // const parent = document.getElementById('stream_parent_receiver')
                         // parent.style.display = 'block'
@@ -1357,8 +1358,10 @@
 
 
             }
-            let GAME_OVER
+            let GAME_OVER;
+            var _turn;
             function reset(mode) {
+                _turn =0
                 const sqrs = document.getElementsByClassName('square')
                 for(let i=0;i<9;i++){
                     sqrs[i].firstChild.innerHTML = ""
@@ -1382,7 +1385,7 @@
                     return false
                 return true
             }
-            var _turn;
+            
             function tictactoe(){
                 if(ticConnection !== undefined){
                     alert('you already have a ticConnection')
@@ -1395,7 +1398,7 @@
                 const gameConsole = document.getElementById('gameConsole')
                 const turn = document.getElementById('turn')
                 const winner = document.getElementById('winner')
-                _turn =0
+                reset('btn')
                 turn.innerHTML= "NOW TURN IS YOURS"
                 gameConsole.style.display = 'flex'
                 document.getElementById('gamePanel').style.display = 'none'
@@ -1453,6 +1456,7 @@
                       
                       document.getElementById('gamePanel').style.display = 'flex'
                       document.getElementById('gameConsole').style.display = 'none'
+                      reset('notbtn')
                       return;
                     }
                     if(data === 'reset'){
