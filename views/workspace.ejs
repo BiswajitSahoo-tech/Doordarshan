@@ -676,6 +676,7 @@
       </div>
       <button onclick="share()" style="width: inherit;height: 14%;border-radius: 10px;background-color: aliceblue;    width: inherit;font-family: system-ui;border: 0;box-shadow: 0px 0px 2px 0px;"><B>Request</B></button>
     </div>
+
     <!-- SHARE BLOCK END -->
 
     <!-- VIDEO CALL BLOCK -->
@@ -741,7 +742,7 @@
     
     <!-- GAME DIV END -->
   </div>
-
+  <msglist></msglist>
   <div id="wrksDataStore" data-peerid="<%= user.peerId %>" data-recpeerid="<%= con.receiverPeerId %>" data-calpeerid="<%= con.callerPeerId %>" data-connid="<%= con._id %>"></div>
 </main>
 
@@ -803,6 +804,7 @@
             var fixedFileChannel= undefined, fixedTicChannel= undefined
             var DataConnection = undefined, fileConnection=false, ticConnection = undefined
             var currentCall = undefined, streamCall= undefined, audioCall= undefined
+            var fileChunks = []; var _turn;
              
             var charcter = undefined
             const wrksDataStore = document.getElementById('wrksDataStore')
@@ -846,7 +848,7 @@
                         const winner = document.getElementById('winner')
                         gamePanel()
 
-                        var _turn = 1;
+                        _turn = 1;
                         turn.innerHTML = 'NOW TURN IS HE/SHE'
 
                         // gameConsole.style.display = 'flex'
@@ -858,7 +860,7 @@
                         for(var i = 0 ; i < sqrs.length ; i++){
                             sqrs[i].setAttribute('id', i)
                             const id = sqrs[i].id
-                            if( sqrs[i].onclick === null){
+                            if(1|| sqrs[i].onclick === null){
                                 sqrs[i].onclick = (e)=>{
                                     if(GAME_OVER){
                                         alert('GAME OVER!!')
@@ -897,7 +899,7 @@
                             if(data === 'exit'){
                                 console.log('exit calledd')
                                 ticConnection = undefined
-                                reset('btn')
+                                reset('notbtn')
                                 dataCon.close()
                                 document.getElementById('gamePanel').style.display = 'flex'
                                 document.getElementById('gameConsole').style.display = 'none'
@@ -944,7 +946,7 @@
             //====================================
 
             //====================================
-            peer.on("call", (call) => {
+            peer.on("call",async (call) => {
                 console.log(call)
                 
                 if( call.metadata && call.metadata.isStreaming){
@@ -965,10 +967,9 @@
                             player.play()
                         })
                         call.on('close', ()=>{
-                            alert('HE/SHE stopped streaming')
-                            // parent.style.display = 'block'
-                            // streamCall = undefined
-                            endStreamCall()
+                          console.log('streaming stopped')
+                          player.srcObject = null
+                          player.pause()
                         })
                     }else{
                         call.close()
@@ -1006,37 +1007,39 @@
                     // call.answer()
                     if (confirm(`Accept call from ${call.peer}?`)) {
                         // grab the camera and mic
-                        navigator.mediaDevices
-                                    .getUserMedia({ video: true, audio: true })
-                                    .then((stream) => {
+                        var stream
+                        try{
+                          stream = await navigator.mediaDevices
+                                                .getUserMedia({ video: true, audio: true })
+                        }catch( err ){
+                          alert('cannot get local stream')
+                          console.log( err)
+                          // return
+                        }
+                        // answer the call
+                        call.answer(stream);
+                        currentCall = call;
+                        // change to the video view
+                        // document.querySelector("#menu").style.display = "none";
+                        // document.querySelector("#live").style.display = "block";
 
-                                      // answer the call
-                                      call.answer(stream);
-                                      currentCall = call;
-                                        // change to the video view
-                                        // document.querySelector("#menu").style.display = "none";
-                                        // document.querySelector("#live").style.display = "block";
-
-                                        // play the local preview
-                                        videoPanel()
-                                        document.querySelector("#local-video").srcObject = stream;
-                                        document.querySelector("#local-video").play();
+                        // play the local preview
+                        videoPanel()
+                        document.querySelector("#local-video").srcObject = stream;
+                        document.querySelector("#local-video").play();
 
                                         
                                         
-                                        call.on("stream", (remoteStream) => {
-                                            // when we receive the remote stream, play it
-                                            document.getElementById("remote-video").srcObject = remoteStream;
-                                            document.getElementById("remote-video").play();
-                                        });
-                                        call.on('close', ()=>{
-                                            currentCall = undefined
-                                            endCall()
-                                        })
-                                    })
-                                    .catch((err) => {
-                                        console.log("Failed to get local stream:", err);
-                                    });
+                        call.on("stream", (remoteStream) => {
+                          // when we receive the remote stream, play it
+                          document.getElementById("remote-video").srcObject = remoteStream;
+                          document.getElementById("remote-video").play();
+                        });
+                        call.on('close', ()=>{
+                            stopCapture(stream)
+                        })
+                                    
+                                    
                     } 
                     else{
                         // user rejected the call, close it
@@ -1090,16 +1093,16 @@
                 //VIDEO CALL
                 
 
-                    
+                    var stream
                     try{
-                        var stream = await navigator.mediaDevices.getUserMedia({
+                            stream = await navigator.mediaDevices.getUserMedia({
                             video: true,
                             audio: true,
                         });
                     }catch( err){
                         alert('cannot get local stream')
                         console.log( err)
-                        return
+                        // return
                     }
                     
                 
@@ -1108,43 +1111,39 @@
                     document.getElementById("local-video").srcObject = stream;
                     document.getElementById("local-video").play();
                 
-                    const call = peer.call(peerId, stream);
+                    currentCall = peer.call(peerId, stream);
 
-                    call.on("stream", (stream) => {
+                    currentCall.on("stream", (stream) => {
                         document.getElementById("remote-video").srcObject = stream;
                         document.getElementById("remote-video").play();
                     });
 
-                    call.on("data", (stream) => {
+                    currentCall.on("data", (stream) => {
                         document.querySelector("#remote-video").srcObject = stream;
                     });
 
-                    call.on("error", (err) => {
+                    currentCall.on("error", (err) => {
                         console.log(err);
                     });
 
-                    call.on('close', () => {
-                        currentCall = undefined
-                        endCall()
+                    currentCall.on('close', () => {
+                        stopCapture(stream)
                     })
 
                 
-                    currentCall = call;
+                    
                 
       }
 
           function endCall() {
                 hideEveryThing()
                 document.getElementById('videoPanel').style.display = 'flex'
-                // document.querySelector("#menu").style.display = "block";
-                // document.querySelector("#live").style.display = "none";
-            
+                
                 if (currentCall === undefined) 
                     return;
-            
-                try {
-                    currentCall.close();
-                } catch {}
+                
+                currentCall.close();
+                
                 currentCall = undefined;
             }
 
@@ -1212,7 +1211,8 @@
         }
         function setFileHandler() {
                 const parent = document.getElementById('share_parent')
-
+                fileChunks = [];
+                let mime
                 fixedFileChannel.on('data',data=>{
                         // if(charcter === 'receiver')
                         //     return;
@@ -1244,15 +1244,21 @@
                                     return
                                 }
                         }
-                        // if(fileConnection){
+                        else if(typeof data == "string" && data.startsWith("mime")){
+                          mime = data.slice(4)
+                        }
                         else{
                             if(fileConnection){
-                                var fileChunks = [];
+                                
                                 if (data.toString() === "EOF") {
                                     // Once, all the chunks are received, combine them to form a Blob
-                                    const file = new Blob(fileChunks);
+                                    console.log(fileChunks)
+                                    const file = new Blob(fileChunks, {type:mime});
+                                    console.log(file)
                                     const fileSrc = URL.createObjectURL(file)
-                                    const fileName = 'DoorDarshan/'+Date.now();
+                                    console.log(fileSrc)
+                                    const fileName = 'DoorDarshan'+Date.now();
+                                
                                     const a = document.createElement('a')
                                     a.setAttribute('download', fileName)
                                     a.setAttribute('href', fileSrc)
@@ -1303,14 +1309,18 @@
                 }
                 fileConnection = false
                 const fileI = document.getElementById('fileI')
-                const n = fileI.files.length
-                console.log( fileI.files)
+                // const n = fileI.files.length
+                // console.log( fileI.files)
                 const file = fileI.files[0]
-                console.log(file)
+                console.log("File Desc:\n",file)
+                let mime = "mime" + file.type
+                fixedFileChannel.send(mime)
                 let buffer = await file.arrayBuffer();
-                console.log(buffer)
+                console.log("Printing Buffer\n",buffer)
                 const chunkSize = 1024 * 1024;
                 var flag = true
+                console.log("File Buffer Length in byte- ", buffer.byteLength)
+                console.log("Start sending buffer chunck wise")
                 while (buffer.byteLength ) {
                     const chunk = buffer.slice(0, chunkSize);
                     console.log(chunk)
@@ -1318,11 +1328,11 @@
 
                     // Off goes the chunk!
                     // setTimeout(()=>{
-                    //     fileConnection.send(chunk);
-                    // },1000)
+                    //   fixedFileChannel.send(chunk);
+                    // },2000)
                     fixedFileChannel.send(chunk);
                     
-                    console.log( 'sent')
+                    // console.log( 'sent')
                     flag = false
                 }
                 setTimeout(()=>{
@@ -1333,7 +1343,7 @@
 
 
                     console.log( 'EOF sent')
-                },10000)
+                },15000)
                 
                 
 
@@ -1359,9 +1369,8 @@
 
             }
             let GAME_OVER;
-            var _turn;
+            
             function reset(mode) {
-                _turn =0
                 const sqrs = document.getElementsByClassName('square')
                 for(let i=0;i<9;i++){
                     sqrs[i].firstChild.innerHTML = ""
@@ -1371,6 +1380,7 @@
                 winner.innerHTML = ""
                 const turn = document.getElementById('turn')
                 turn.innerHTML= mode === "btn"? "NOW TURN IS YOURS" : "NOW TURN IS HE/SHE"
+                _turn = mode === "btn"? 0 : 1
                 if(ticConnection !== undefined && mode === 'btn'){
                     ticConnection.send('reset')
                 }
@@ -1448,6 +1458,7 @@
                     
 
                 }
+                
                 dataConn.on('data', data=>{
                     console.log(data)
                     if(data === 'exit'){
@@ -1518,7 +1529,7 @@
                 ticConnection = undefined
                 // dataConn.close()
               }, 2000);
-              reset('notbtn')
+              reset('btn')
               document.getElementById('gamePanel').style.display = 'flex'
               document.getElementById('gameConsole').style.display = 'none'
               
@@ -1601,6 +1612,7 @@
               streamCall = undefined
               document.getElementById('startStreamBtn').style.display = 'block'
               document.getElementById('stopStreamBtn').style.display = 'none'
+              document.getElementById('streamLabel').innerHTML = 'Currently you are not streaming'
             }
             function streamPanel(e) {
               hideEveryThing()
@@ -1618,6 +1630,7 @@
               else
                 document.getElementById('stream_parent_receiver').style.display = 'flex'
             }
+            
             async function startCapture(displayMediaOptions) {
                 var captureScreen = undefined
                 try{
@@ -1630,6 +1643,14 @@
                 }
                 return captureScreen
             }
+            function stopCapture(Stream){
+              Stream.getTracks().forEach(function(track) {
+                if (track.readyState == 'live') {
+                    track.stop();
+                }
+                // track.stop();
+              });
+            }
             async function stream(){
                 if( streamCall === undefined){
                     startCapture({displaySurface:['application' , 'browser', 'monitor', 'window']})
@@ -1638,14 +1659,15 @@
                         console.log( screenStream)
                         streamCall = peer.call(peerId, screenStream ,{metadata: {isStreaming : true}})
                         streamCall.on('close', ()=>{
-                          stopStream()
+                          stopCapture(screenStream)
+                          
                         })
                         document.getElementById('streamLabel').innerHTML = 'Currently you are streaming'
                         document.getElementById('startStreamBtn').style.display = 'none'
                         document.getElementById('stopStreamBtn').style.display = 'block'
 
                     }).catch( err => {
-                        endStreamCall()
+                      console.log(err);
                     })
                 }
                 
