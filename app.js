@@ -46,7 +46,8 @@ const scriptSrcUrls = [
     "https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.js",
     "https://js.stripe.com/v3/",
     "https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js",
-    "https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"
+    "https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
 ];
 const styleSrcUrls = [
     "https://api.mapbox.com/",
