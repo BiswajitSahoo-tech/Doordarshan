@@ -1,3 +1,7 @@
+var multer = require('multer')
+var zlib = require('zlib')
+var cors = require('cors')
+let fs = require('fs')
 const path = require('path')
 const express = require('express')
 const rateLimit = require('express-rate-limit')
@@ -20,6 +24,13 @@ app.set('view engine' , 'ejs')
 
 app.set('views' , path.join( __dirname , 'views'))
 
+
+app.use(cors());
+//multer
+var storage = multer.memoryStorage();
+var upload = multer({
+  storage: storage,
+});
 
 
 app.use(express.static( path.join( __dirname , 'public'))) //TO SERVE STATIC FILE
@@ -115,9 +126,52 @@ if(process.env.NODE_ENV === 'dev'){
     app.use(morgan('dev'))
 }
 
+app.post('/api/v1/test', (req, res)=>{
+  res.status(200).json({
+      status:'success',
+      data:"Working Fine."
+  })
+})
+
+app.post("/compress",  upload.single('file'),async (req, res) => {
+  // console.log(req)
+  // res.status(200).json({
+  //   status:'success',
+  //   data:"Working Fine."
+// })
+  try {
+    const destination = `compressed/${req.file.originalname}.gz`;
+    let fileBuffer = req.file.buffer;
+    await zlib.gzip(fileBuffer, (err, response) => {
+      if (err) {
+        console.log(err);
+      }
+      // res.status( 200).json({
+      //     status:'success',
+      //     data: response
+      // })
+      fs.writeFile(path.join(__dirname, destination), response, (err, data) => {
+        if (err) {
+          console.log(err);
+        }
+        res.download(path.join(__dirname, destination));
+      });
+    });
+  } catch (err) {
+    
+    res.status(404).json({
+      status: "fail",
+      err
+    })
+  }
+});
+
 app.use('/' , viewRouter)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/connection', connectionRouter)
+
+
+
 
 
 app.all('*' , (req , res,next) => {
