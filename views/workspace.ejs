@@ -1212,7 +1212,7 @@
         function setFileHandler() {
                 const parent = document.getElementById('share_parent')
                 fileChunks = [];
-                let mime
+                let mime,total_chunks,cum_chunks =0
                 fixedFileChannel.on('data',data=>{
                         // if(charcter === 'receiver')
                         //     return;
@@ -1244,8 +1244,19 @@
                                     return
                                 }
                         }
-                        else if(typeof data == "string" && data.startsWith("mime")){
-                          mime = data.slice(4)
+                        else if(typeof data == "object" && data.type === "ADV"){
+                          mime = data.mime
+                          total_chunks = data.size
+                          cum_chunks = 0
+                        }
+                        else if( data === "SEND_EOF"){
+                          fixedFileChannel.send("EOF");
+                          document.getElementById('sharePanel').style.display = 'flex'
+                          document.getElementById('share_parent').style.display = 'none'
+
+
+
+                          console.log( 'EOF sent')
                         }
                         else{
                             if(fileConnection){
@@ -1268,10 +1279,18 @@
                                     URL.revokeObjectURL(fileSrc);
                                     fileChunks = []
                                     fileConnection = false;
+                                    cum_chunks = 0
                                     
                                 } else {
                                     // Keep appending various file chunks
                                     fileChunks.push(data);
+                                    cum_chunks++;
+                                    console.log(cum_chunks, total_chunks)
+                                    if(cum_chunks == total_chunks){
+                                      // send FNS signal
+                                      fixedFileChannel.send('SEND_EOF')
+
+                                    }
                                 }
                             }
                             else{
@@ -1311,13 +1330,23 @@
                 const fileI = document.getElementById('fileI')
                 // const n = fileI.files.length
                 // console.log( fileI.files)
+                const chunkSize = 1024 * 1024;
                 const file = fileI.files[0]
                 console.log("File Desc:\n",file)
-                let mime = "mime" + file.type
-                fixedFileChannel.send(mime)
+                let mime = file.type
+                let expected_chunks = Math.ceil((file.size)/(chunkSize)) 
+
+                // sending ADV chunck since it is SCTP
+                fixedFileChannel.send({
+                                        type:"ADV", 
+                                         mime, 
+                                        size:expected_chunks
+                                      })
+
+
                 let buffer = await file.arrayBuffer();
                 console.log("Printing Buffer\n",buffer)
-                const chunkSize = 1024 * 1024;
+                
                 var flag = true
                 console.log("File Buffer Length in byte- ", buffer.byteLength)
                 console.log("Start sending buffer chunck wise")
@@ -1335,15 +1364,15 @@
                     // console.log( 'sent')
                     flag = false
                 }
-                setTimeout(()=>{
-                    fixedFileChannel.send("EOF");
-                    document.getElementById('sharePanel').style.display = 'flex'
-                    document.getElementById('share_parent').style.display = 'none'
+                // setTimeout(()=>{
+                //     fixedFileChannel.send("EOF");
+                //     document.getElementById('sharePanel').style.display = 'flex'
+                //     document.getElementById('share_parent').style.display = 'none'
 
 
 
-                    console.log( 'EOF sent')
-                },15000)
+                //     console.log( 'EOF sent')
+                // },15000)
                 
                 
 
