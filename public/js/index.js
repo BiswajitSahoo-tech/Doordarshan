@@ -8,6 +8,7 @@ import {peer, registerPeer, connect } from './home.js'
 import { overlap } from './overlap.js'
 import { disconnect } from './disconnect.js'
 import { updateSettings } from './updateSettings.js'
+import {_compress} from './compress.js'
 
 
 //dom elements 
@@ -24,13 +25,22 @@ const disCnt = document.getElementById('disCnt')
 const Cnt = document.getElementsByClassName('Cnt')
 const userDataForm = document.querySelector('.form-user-data')
 const userPasswordForm = document.querySelector('.form-user-password')
+const fileInput = document.getElementById('fileI');
 
-
+// console.log('!@@@@@@@@@@@')
 //values
 
  
 
 //delegation mapping
+if(fileInput){
+    document.addEventListener('custom_compress', (e)=>{
+        console.log('EVENT EFFECTED')
+        e.preventDefault()
+        const file = fileInput.files[0]
+        _compress(file)
+    })
+}
 if( userDataForm){
     
     userDataForm.addEventListener('submit',(e )=>{
@@ -184,3 +194,8 @@ if(loginBtn){
    
 // }
 
+
+
+function _test(){
+    console.log('&&&&&&@@@@@&&&&&&@@@&&&&');
+}
