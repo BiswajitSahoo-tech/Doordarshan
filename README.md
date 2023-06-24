@@ -1,3 +1,4 @@
+## This project has been renamed into Wave. You can find the repo for Wave [here](https://github.com/BiswajitSahoo-tech/Wave). This repo does not reflect all our recent changes. All the latest commits for this project can be found on Wave.
 # Doordarshan
 A p2p protocol and application | chat, video call, call, share files, stream, play games with your peer.
 
